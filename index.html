@@ -95,10 +95,36 @@
             <span class="btn-icon">🗑️</span>
             <span class="btn-text">Clear</span>
           </button>
+          <button id="detectBtn" class="btn" type="button" style="background: var(--surface-hover);">
+            <span class="btn-icon">🔍</span>
+            <span class="btn-text">Check AI</span>
+          </button>
         </div>
 
         <label class="sr-only" for="output">Output text</label>
         <textarea id="output" readonly placeholder="Human-friendly text will appear here..."></textarea>
+
+        <!-- AI Detection Section -->
+        <div class="detection-section" id="detectionSection" style="display: none;">
+          <div class="detection-header">
+            <h3>🔍 AI Detection Score</h3>
+            <span class="badge free-api-note">Free API • ~70% accurate</span>
+          </div>
+          
+          <div class="meter-container detect-meter-container">
+            <div class="meter-fill" id="detectMeterFill"></div>
+          </div>
+          
+          <div class="detection-results">
+            <div class="score-display">
+              <span id="detectPercent">0%</span>
+              <span class="label-text">AI Probability</span>
+            </div>
+            <div class="status-message" id="detectStatus">
+              <!-- Dynamic Status -->
+            </div>
+          </div>
+        </div>
 
         <div class="stats">
           <span class="badge" id="wordCount">Words: 0</span>
