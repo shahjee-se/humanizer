@@ -167,21 +167,25 @@
   function handleBurstChange() {
     config.burst = parseFloat(this.value);
     if (elements.burstVal) elements.burstVal.textContent = config.burst.toFixed(2);
+    updateStats();
   }
 
   function handleSynChange() {
     config.syn = parseFloat(this.value);
     if (elements.synVal) elements.synVal.textContent = config.syn.toFixed(2);
+    updateStats();
   }
 
   function handleTransChange() {
     config.trans = parseFloat(this.value);
     if (elements.transVal) elements.transVal.textContent = config.trans.toFixed(2);
+    updateStats();
   }
 
   function handlePunctChange() {
     config.punct = parseFloat(this.value);
     if (elements.punctVal) elements.punctVal.textContent = config.punct.toFixed(2);
+    updateStats();
   }
 
   // Humanize button handler
