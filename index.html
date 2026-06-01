@@ -9,24 +9,27 @@
       --bg: #0b0f19; --surface: #151a28; --surface-hover: #1e2538;
       --text: #e2e8f0; --muted: #94a3b8; --accent: #6366f1;
       --accent-glow: rgba(99, 102, 241, 0.35); --success: #10b981;
-      --warn: #f59e0b; --radius: 14px; --shadow: 0 10px 35px rgba(0,0,0,0.45);
+      --warn: #f59e0b; --radius: 12px; --shadow: 0 8px 25px rgba(0,0,0,0.4);
       --font: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     [data-theme="light"] {
       --bg: #f8fafc; --surface: #ffffff; --surface-hover: #f1f5f9;
-      --text: #0f172a; --muted: #64748b; --shadow: 0 10px 35px rgba(0,0,0,0.12);
+      --text: #0f172a; --muted: #64748b; --shadow: 0 8px 25px rgba(0,0,0,0.1);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.5; padding: 20px; transition: 0.3s; }
-    .container { max-width: 1100px; margin: 0 auto; }
+    .container { max-width: 1100px; margin: 0 auto; position: relative; }
+    
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-    h1 { font-size: clamp(1.5rem, 3.5vw, 2rem); background: linear-gradient(90deg, #818cf8, #a78bfa); -webkit-background-clip: text; color: transparent; }
-    .theme-btn { background: var(--surface); border: 1px solid var(--muted); color: var(--text); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; }
+    h1 { font-size: clamp(1.4rem, 3vw, 1.9rem); background: linear-gradient(90deg, #818cf8, #a78bfa); -webkit-background-clip: text; color: transparent; }
+    .header-actions { display: flex; gap: 10px; }
+    .icon-btn { background: var(--surface); border: 1px solid var(--surface-hover); color: var(--text); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
+    .icon-btn:hover { background: var(--surface-hover); }
 
     .layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
     @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
 
-    .card { background: var(--surface); border: 1px solid rgba(148,163,184,0.15); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+    .card { background: var(--surface); border: 1px solid var(--surface-hover); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
     h3 { font-size: 0.95rem; margin-bottom: 14px; color: #f8fafc; }
 
     .mode-bar { display: flex; background: var(--surface-hover); border-radius: 10px; padding: 4px; margin-bottom: 18px; }
@@ -36,7 +39,7 @@
     .control { margin-bottom: 16px; }
     .control-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
     .val { background: var(--surface-hover); padding: 2px 8px; border-radius: 6px; font-family: monospace; font-size: 0.8rem; }
-    .desc { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+    .desc { font-size: 0.75rem; color: var(--muted); margin-top: 4px; line-height: 1.3; }
     input[type="range"] { -webkit-appearance: none; width: 100%; height: 5px; background: var(--surface-hover); border-radius: 4px; outline: none; cursor: pointer; }
     input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; transition: 0.2s; }
     input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.15); box-shadow: 0 0 6px var(--accent-glow); }
@@ -46,7 +49,7 @@
     textarea[readonly] { background: var(--surface-hover); }
 
     .actions { display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
-    .btn { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; background: var(--surface-hover); color: var(--text); }
+    .btn { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; background: var(--surface-hover); color: var(--text); pointer-events: auto; }
     .btn.primary { background: var(--accent); color: #fff; }
     .btn:hover { transform: translateY(-1px); }
     .btn.primary:hover { box-shadow: 0 4px 12px var(--accent-glow); }
@@ -58,9 +61,14 @@
     .meter-fill { height: 100%; background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981); width: 0%; transition: 0.6s; border-radius: 4px; }
     .meter-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; }
 
-    .history { max-height: 110px; overflow-y: auto; font-size: 0.8rem; color: var(--muted); margin-top: 10px; }
-    .history-item { padding: 8px 10px; border-bottom: 1px solid var(--surface-hover); cursor: pointer; transition: 0.2s; }
+    .history-dropdown { position: absolute; top: 50px; right: 20px; width: 280px; background: var(--surface); border: 1px solid var(--surface-hover); border-radius: var(--radius); padding: 10px; box-shadow: var(--shadow); z-index: 50; display: none; }
+    .history-dropdown.show { display: block; }
+    .history-item { padding: 10px; border-radius: 8px; cursor: pointer; font-size: 0.82rem; color: var(--muted); transition: 0.2s; margin-bottom: 4px; }
     .history-item:hover { background: var(--surface-hover); color: var(--text); }
+    .history-item .time { font-size: 0.7rem; color: var(--accent); display: block; margin-bottom: 2px; }
+    .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--surface-hover); }
+    .clear-hist { background: none; border: none; color: var(--warn); cursor: pointer; font-size: 0.75rem; }
+
     .tips { margin-top: 18px; padding: 12px; background: var(--bg); border-radius: var(--radius); font-size: 0.85rem; border-left: 3px solid var(--accent); }
     .tips strong { color: #f8fafc; }
     .tips ul { margin: 6px 0 0 18px; color: var(--muted); }
@@ -73,16 +81,27 @@
   <div class="container">
     <header>
       <h1>Simple AI Text Humanizer</h1>
-      <button class="theme-btn" id="themeToggle">🌙 Light</button>
+      <div class="header-actions">
+        <button id="historyBtn" class="icon-btn" type="button">📜 History</button>
+        <button id="themeToggle" class="icon-btn" type="button">🌙 Theme</button>
+      </div>
     </header>
+
+    <div id="historyDropdown" class="history-dropdown">
+      <div class="history-header">
+        <strong>Recent Outputs</strong>
+        <button class="clear-hist" id="clearHistoryBtn" type="button">Clear</button>
+      </div>
+      <div id="historyList">No history yet.</div>
+    </div>
 
     <div class="layout">
       <aside class="card">
         <h3>⚙️ Settings</h3>
         <div class="mode-bar" id="modeBar">
-          <button class="mode-btn active" data-mode="chat">💬 Casual</button>
-          <button class="mode-btn" data-mode="pro">💼 Business</button>
-          <button class="mode-btn" data-mode="academic">🎓 School</button>
+          <button class="mode-btn active" data-mode="chat" type="button">💬 Casual</button>
+          <button class="mode-btn" data-mode="pro" type="button">💼 Business</button>
+          <button class="mode-btn" data-mode="academic" type="button">🎓 School</button>
         </div>
 
         <div class="control">
@@ -105,18 +124,15 @@
           <input type="range" id="punct" min="0" max="1" step="0.05" value="0.60">
           <div class="desc">Fixes missing commas & adds natural pauses. Keeps lists safe.</div>
         </div>
-
-        <h3>📜 Recent Outputs</h3>
-        <div class="history" id="history">Nothing yet.</div>
       </aside>
 
       <main class="card">
         <textarea id="input" placeholder="Paste your AI text here..."></textarea>
         <div class="actions">
-          <button class="btn primary" id="humanizeBtn"><span>✨ Humanize</span></button>
-          <button class="btn" id="copyBtn">📋 Copy</button>
-          <button class="btn" id="downloadBtn">⬇️ Download .txt</button>
-          <button class="btn" id="clearBtn">🗑️ Clear</button>
+          <button class="btn primary" id="humanizeBtn" type="button"><span>✨ Humanize</span></button>
+          <button class="btn" id="copyBtn" type="button">📋 Copy</button>
+          <button class="btn" id="downloadBtn" type="button">⬇️ Download .txt</button>
+          <button class="btn" id="clearBtn" type="button">🗑️ Clear</button>
         </div>
         <textarea id="output" readonly placeholder="Human-friendly text appears here..."></textarea>
         
@@ -143,179 +159,227 @@
   </div>
 
   <script>
-    // Simple presets tuned from top humanizer patterns
-    const MODES = {
-      chat: { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60 },
-      pro:  { burst: 0.55, syn: 0.12, trans: 0.15, punct: 0.70 },
-      academic: { burst: 0.45, syn: 0.25, trans: 0.10, punct: 0.75 }
-    };
+    document.addEventListener('DOMContentLoaded', () => {
+      const MODES = {
+        chat: { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60 },
+        pro:  { burst: 0.55, syn: 0.12, trans: 0.15, punct: 0.70 },
+        academic: { burst: 0.45, syn: 0.25, trans: 0.10, punct: 0.75 }
+      };
 
-    const WORD_MAPS = {
-      chat: { utilize:"use", commence:"start", subsequently:"later", therefore:"so", nevertheless:"still", demonstrate:"show", endeavor:"try", facilitate:"help", implement:"set up", furthermore:"also", in conclusion:"anyway" },
-      pro:  { utilize:"use", commence:"begin", subsequently:"afterwards", therefore:"thus", nevertheless:"however", demonstrate:"illustrate", endeavor:"attempt", facilitate:"enable", implement:"deploy", furthermore:"moreover", in conclusion:"to wrap up" },
-      academic: { utilize:"employ", commence:"initiate", subsequently:"following", therefore:"hence", nevertheless:"nonetheless", demonstrate:"evidence", endeavor:"strive", facilitate:"promote", implement:"integrate", furthermore:"in addition", in conclusion:"in summary" }
-    };
+      const WORD_MAPS = {
+        chat: { utilize:"use", commence:"start", subsequently:"later", therefore:"so", nevertheless:"still", demonstrate:"show", endeavor:"try", facilitate:"help", implement:"set up", furthermore:"also", in conclusion:"anyway" },
+        pro:  { utilize:"use", commence:"begin", subsequently:"afterwards", therefore:"thus", nevertheless:"however", demonstrate:"illustrate", endeavor:"attempt", facilitate:"enable", implement:"deploy", furthermore:"moreover", in conclusion:"to wrap up" },
+        academic: { utilize:"employ", commence:"initiate", subsequently:"following", therefore:"hence", nevertheless:"nonetheless", demonstrate:"evidence", endeavor:"strive", facilitate:"promote", implement:"integrate", furthermore:"in addition", in conclusion:"in summary" }
+      };
 
-    const config = { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60, tone: "chat" };
+      const config = { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60, tone: "chat" };
 
-    // Bind UI sliders
-    const bind = (id, key, valId) => {
-      const el = document.getElementById(id);
-      el.addEventListener("input", () => { config[key] = parseFloat(el.value); document.getElementById(valId).textContent = el.value; });
-    };
-    bind("burst", "burst", "burstVal"); bind("syn", "syn", "synVal"); bind("trans", "trans", "transVal"); bind("punct", "punct", "punctVal");
+      // UI Elements
+      const els = {
+        input: document.getElementById('input'), output: document.getElementById('output'),
+        stats: document.getElementById('stats'), meter: document.getElementById('readinessMeter'),
+        humanizeBtn: document.getElementById('humanizeBtn'), copyBtn: document.getElementById('copyBtn'),
+        downloadBtn: document.getElementById('downloadBtn'), clearBtn: document.getElementById('clearBtn'),
+        themeToggle: document.getElementById('themeToggle'), historyBtn: document.getElementById('historyBtn'),
+        historyDropdown: document.getElementById('historyDropdown'), historyList: document.getElementById('historyList'),
+        clearHistoryBtn: document.getElementById('clearHistoryBtn')
+      };
 
-    // Mode switching
-    document.querySelectorAll(".mode-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        const m = btn.dataset.mode; config.tone = m;
-        ["burst","syn","trans","punct"].forEach(k => {
-          document.getElementById(k).value = MODES[m][k]; config[k] = MODES[m][k];
-          document.getElementById(k + "Val").textContent = MODES[m][k].toFixed(2);
+      // Bind Sliders
+      const bindSlider = (id, key, valId) => {
+        const el = document.getElementById(id);
+        el.addEventListener('input', () => { config[key] = parseFloat(el.value); document.getElementById(valId).textContent = el.value; });
+      };
+      bindSlider('burst', 'burst', 'burstVal'); bindSlider('syn', 'syn', 'synVal'); bindSlider('trans', 'trans', 'transVal'); bindSlider('punct', 'punct', 'punctVal');
+
+      // Mode Switch
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          config.tone = btn.dataset.mode;
+          const m = MODES[config.tone];
+          ['burst','syn','trans','punct'].forEach(k => {
+            document.getElementById(k).value = m[k]; config[k] = m[k];
+            document.getElementById(k + 'Val').textContent = m[k].toFixed(2);
+          });
+          updateStats();
         });
-        updateStats();
       });
-    });
 
-    // Theme toggle
-    document.getElementById("themeToggle").addEventListener("click", () => {
-      const html = document.documentElement;
-      const dark = html.dataset.theme === "dark";
-      html.dataset.theme = dark ? "light" : "dark";
-      document.getElementById("themeToggle").textContent = dark ? "☀️ Dark" : "🌙 Light";
-    });
+      // Theme Toggle
+      els.themeToggle.addEventListener('click', () => {
+        const html = document.documentElement;
+        const isDark = html.dataset.theme === 'dark';
+        html.dataset.theme = isDark ? 'light' : 'dark';
+        els.themeToggle.textContent = isDark ? '☀️ Dark' : '🌙 Light';
+      });
 
-    // Formatting-safe humanization
-    function isListOrShort(line) {
-      const t = line.trim();
-      return t.length < 25 || /^[\s]*[\-\*\•\d\)]+\.\s/.test(t) || /^[\s]*[\-\*\•]\s/.test(t);
-    }
+      // History Dropdown
+      els.historyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        els.historyDropdown.classList.toggle('show');
+        renderHistory();
+      });
+      document.addEventListener('click', (e) => {
+        if (!els.historyDropdown.contains(e.target) && e.target !== els.historyBtn) {
+          els.historyDropdown.classList.remove('show');
+        }
+      });
 
-    function applyLightFixes(text) {
-      let out = text.replace(/\b(utilize|commence|subsequently|furthermore|in conclusion)\b/gi, w => WORD_MAPS[config.tone][w.toLowerCase()] || w);
-      return out.replace(/\s+/g, " ").trim();
-    }
+      els.clearHistoryBtn.addEventListener('click', () => {
+        localStorage.removeItem('humanizer_hist');
+        renderHistory();
+      });
 
-    function applyFullPipeline(text) {
-      // Remove AI filler
-      let processed = text.replace(/\b(in conclusion|to summarize|it is important to note|it's worth mentioning|ultimately|additionally)\b/gi, () => Math.random() > 0.6 ? "" : "Anyway, ");
+      function renderHistory() {
+        const h = JSON.parse(localStorage.getItem('humanizer_hist') || '[]');
+        if (!h.length) { els.historyList.innerHTML = '<div style="padding:8px;color:var(--muted);font-size:0.8rem;">No history yet.</div>'; return; }
+        els.historyList.innerHTML = h.map((item, i) => `
+          <div class="history-item" data-idx="${i}">
+            <span class="time">${item.time}</span>
+            ${item.preview}
+          </div>
+        `).join('');
+        els.historyList.querySelectorAll('.history-item').forEach(el => {
+          el.addEventListener('click', () => {
+            const idx = parseInt(el.dataset.idx);
+            els.output.value = h[idx].full;
+            els.historyDropdown.classList.remove('show');
+            updateStats();
+          });
+        });
+      }
 
-      // Sentence split
-      const sentences = processed.match(/[^.!?]+[.!?]+/g) || [processed];
-      const result = [];
-      const words = WORD_MAPS[config.tone];
+      function saveHistory(text) {
+        if (!text) return;
+        let h = JSON.parse(localStorage.getItem('humanizer_hist') || '[]');
+        h.unshift({
+          preview: text.substring(0, 45) + (text.length > 45 ? '...' : ''),
+          full: text,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+        if (h.length > 8) h.pop();
+        localStorage.setItem('humanizer_hist', JSON.stringify(h));
+      }
 
-      for (let i = 0; i < sentences.length; i++) {
-        let s = sentences[i].trim();
-        if (!s) continue;
+      // Line Protection Logic
+      const isListOrShort = (line) => {
+        const t = line.trim();
+        return t.length < 25 || /^[\s]*[\-\*\•\d\.\)]/.test(t) || /^[\s]*[\-\*\•]\s/.test(t);
+      };
 
-        // Mix sentence lengths
-        if (Math.random() < config.burst && s.length > 65) {
-          const split = Math.floor(s.length * 0.65);
-          const idx = s.lastIndexOf(" ", split);
-          if (idx > 0) {
-            const a = s.substring(0, idx).trim();
-            const b = s.substring(idx + 1).trim();
-            if (b) s = `${a}. ${b.charAt(0).toUpperCase()}${b.slice(1)}`;
+      const applyLightFixes = (text) => {
+        return text.replace(/\b(utilize|commence|subsequently|furthermore|in conclusion)\b/gi, w => WORD_MAPS[config.tone][w.toLowerCase()] || w).replace(/\s+/g, ' ').trim();
+      };
+
+      const processParagraph = (text) => {
+        let s = text.replace(/\b(in conclusion|to summarize|it is important to note|it's worth mentioning|ultimately|additionally)\b/gi, () => Math.random() > 0.6 ? '' : 'Anyway, ');
+        const sentences = s.match(/[^.!?]+[.!?]+/g) || [s];
+        const out = [];
+        const words = WORD_MAPS[config.tone];
+
+        for (let i = 0; i < sentences.length; i++) {
+          let line = sentences[i].trim();
+          if (!line) continue;
+
+          // Rhythm
+          if (Math.random() < config.burst && line.length > 65) {
+            const split = Math.floor(line.length * 0.65);
+            const idx = line.lastIndexOf(' ', split);
+            if (idx > 0) {
+              const a = line.substring(0, idx).trim();
+              const b = line.substring(idx + 1).trim();
+              if (b) line = `${a}. ${b.charAt(0).toUpperCase()}${b.slice(1)}`;
+            }
           }
+
+          // Word Swaps
+          line = line.split(/(\s+|[.,!?;:])/).map(w => {
+            const clean = w.toLowerCase().replace(/[.,!?;:]$/, '');
+            return words[clean] && Math.random() < config.syn ? words[clean] + w.slice(w.toLowerCase().indexOf(clean) + clean.length) : w;
+          }).join('');
+
+          // Connectors
+          if (i > 0 && Math.random() < config.trans) {
+            const pool = config.tone === 'chat' ? ['That said,', 'Honestly,', 'Funny enough,', 'Here\'s the thing:', 'Turns out,'] :
+                         config.tone === 'pro' ? ['That noted,', 'Practically,', 'Moving forward,', 'In practice,', 'To clarify,'] :
+                         ['Notably,', 'Conversely,', 'In this context,', 'As observed,', 'Specifically,'];
+            line = pool[Math.floor(Math.random() * pool.length)] + ' ' + line;
+          }
+
+          // Casual Contractions
+          if (config.tone === 'chat') {
+            line = line.replace(/\b(I am|you are|they are|we are|do not|cannot|it is)\b/gi, m => ({
+              "I am":"I'm","you are":"you're","they are":"they're","we are":"we're","do not":"don't","cannot":"can't","it is":"it's"
+            }[m] || m));
+          }
+          out.push(line);
         }
 
-        // Swap words
-        s = s.split(/(\s+|[.,!?;:])/).map(w => {
-          const clean = w.toLowerCase().replace(/[.,!?;:]$/, "");
-          return words[clean] && Math.random() < config.syn ? words[clean] + w.slice(w.toLowerCase().indexOf(clean) + clean.length) : w;
-        }).join("");
-
-        // Add connectors
-        if (i > 0 && Math.random() < config.trans) {
-          const pool = config.tone === "chat" ? ["That said,", "Honestly,", "Funny enough,", "Here's the thing:", "Turns out,"] :
-                       config.tone === "pro" ? ["That noted,", "Practically,", "Moving forward,", "In practice,", "To clarify,"] :
-                       ["Notably,", "Conversely,", "In this context,", "As observed,", "Specifically,"];
-          s = pool[Math.floor(Math.random() * pool.length)] + " " + s;
+        // Punctuation
+        if (config.punct > 0) {
+          let joined = out.join(' ');
+          joined = joined.replace(/\b(however|therefore|thus|furthermore|moreover|additionally|conversely)\b,?\s+/gi, '$1, ');
+          return joined.replace(/\s+/g, ' ').trim();
         }
+        return out.join(' ').replace(/\s+/g, ' ').trim();
+      };
 
-        // Contractions for casual
-        if (config.tone === "chat") {
-          s = s.replace(/\b(I am|you are|they are|we are|do not|cannot|it is)\b/gi, m => ({
-            "I am":"I'm","you are":"you're","they are":"they're","we are":"we're","do not":"don't","cannot":"can't","it is":"it's"
-          }[m] || m));
+      // Main Humanize
+      window.humanizeText = (text) => {
+        return text.split('\n').map(line => {
+          if (!line.trim()) return line;
+          return isListOrShort(line) ? applyLightFixes(line) : processParagraph(line);
+        }).join('\n');
+      };
+
+      function updateStats() {
+        const out = els.output.value;
+        if (!out) {
+          els.stats.innerHTML = '<span class="badge">Words: 0</span><span class="badge">Lines: 0</span><span class="badge">Mode: Casual</span>';
+          els.meter.style.width = '0%';
+          return;
         }
-        result.push(s);
+        const wc = out.split(/\s+/).filter(Boolean).length;
+        const lc = out.split('\n').filter(l => l.trim()).length;
+        const readiness = Math.min(100, Math.round((config.burst * 0.25 + (1 - Math.abs(config.syn - 0.15)) * 0.2 + config.trans * 0.15 + config.punct * 0.2 + (config.tone === 'chat' ? 0.2 : 0.1)) * 100));
+        els.stats.innerHTML = `<span class="badge">Words: ${wc}</span><span class="badge">Lines: ${lc}</span><span class="badge">Mode: ${config.tone === 'chat' ? 'Casual' : config.tone === 'pro' ? 'Business' : 'School'}</span>`;
+        els.meter.style.width = readiness + '%';
       }
 
-      // Smart punctuation (respects line breaks)
-      if (config.punct > 0) {
-        let joined = result.join(" ");
-        // Add commas after transitions
-        joined = joined.replace(/\b(however|therefore|thus|furthermore|moreover|additionally|conversely|notably|interestingly)\b,/gi, "$1,");
-        // Fix missing periods on long runs
-        joined = joined.replace(/(\w{25,})\s+(\w)/g, (m, a, b) => Math.random() < config.punct * 0.3 ? `${a}. ${b}` : m);
-        return joined.replace(/\s+/g, " ").trim();
-      }
-      return result.join(" ").replace(/\s+/g, " ").trim();
-    }
-
-    function humanizeText(text) {
-      return text.split('\n').map(line => {
-        if (!line.trim()) return line;
-        return isListOrShort(line) ? applyLightFixes(line) : applyFullPipeline(line);
-      }).join('\n');
-    }
-
-    // UI Actions
-    function updateStats() {
-      const out = document.getElementById("output").value;
-      if (!out) return;
-      const wc = out.split(/\s+/).filter(Boolean).length;
-      const lc = out.split('\n').filter(l => l.trim()).length;
-      const readiness = Math.min(100, Math.round((config.burst * 0.25 + (1 - Math.abs(config.syn - 0.15)) * 0.2 + config.trans * 0.15 + config.punct * 0.2 + (config.tone === "chat" ? 0.2 : 0.1)) * 100));
-      document.getElementById("stats").innerHTML = `<span class="badge">Words: ${wc}</span><span class="badge">Lines: ${lc}</span><span class="badge">Mode: ${config.tone === 'chat' ? 'Casual' : config.tone === 'pro' ? 'Business' : 'School'}</span>`;
-      document.getElementById("readinessMeter").style.width = readiness + "%";
-    }
-
-    function saveHistory(text) {
-      let h = JSON.parse(localStorage.getItem("hist") || "[]");
-      h.unshift({ text: text.substring(0, 55) + (text.length > 55 ? "..." : ""), full: text, time: new Date().toLocaleTimeString() });
-      if (h.length > 6) h.pop();
-      localStorage.setItem("hist", JSON.stringify(h));
-      document.getElementById("history").innerHTML = h.map((i, idx) => `<div class="history-item" data-idx="${idx}">${i.time} • ${i.text}</div>`).join("");
-      document.querySelectorAll(".history-item").forEach(el => el.onclick = () => { document.getElementById("output").value = h[el.dataset.idx].full; updateStats(); });
-    }
-
-    document.getElementById("humanizeBtn").addEventListener("click", () => {
-      const input = document.getElementById("input").value.trim();
-      if (!input) return;
-      const btn = document.getElementById("humanizeBtn");
-      btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Working...';
-      setTimeout(() => {
-        document.getElementById("output").value = humanizeText(input);
-        saveHistory(document.getElementById("output").value);
-        updateStats();
-        btn.disabled = false; btn.innerHTML = '<span>✨ Humanize</span>';
-      }, 200);
-    });
-
-    document.getElementById("copyBtn").addEventListener("click", () => {
-      navigator.clipboard.writeText(document.getElementById("output").value).then(() => {
-        const b = document.getElementById("copyBtn"); b.textContent = "✅ Copied"; setTimeout(() => b.textContent = "📋 Copy", 1200);
+      // Button Actions
+      els.humanizeBtn.addEventListener('click', () => {
+        const input = els.input.value.trim();
+        if (!input) return;
+        els.humanizeBtn.disabled = true; els.humanizeBtn.innerHTML = '<span class="spin"></span> Working...';
+        setTimeout(() => {
+          els.output.value = humanizeText(input);
+          saveHistory(els.output.value);
+          updateStats();
+          els.humanizeBtn.disabled = false; els.humanizeBtn.innerHTML = '<span>✨ Humanize</span>';
+        }, 250);
       });
-    });
 
-    document.getElementById("downloadBtn").addEventListener("click", () => {
-      const t = document.getElementById("output").value; if (!t) return;
-      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([t], { type: "text/plain" })); a.download = "humanized.txt"; a.click();
-    });
+      els.copyBtn.addEventListener('click', () => {
+        if (!els.output.value) return;
+        navigator.clipboard.writeText(els.output.value).then(() => {
+          const b = els.copyBtn; b.textContent = '✅ Copied'; setTimeout(() => b.textContent = '📋 Copy', 1200);
+        });
+      });
 
-    document.getElementById("clearBtn").addEventListener("click", () => {
-      ["input","output"].forEach(id => document.getElementById(id).value = "");
-      document.getElementById("readinessMeter").style.width = "0%";
+      els.downloadBtn.addEventListener('click', () => {
+        const t = els.output.value; if (!t) return;
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([t], { type: 'text/plain' })); a.download = 'humanized.txt'; a.click();
+      });
+
+      els.clearBtn.addEventListener('click', () => {
+        els.input.value = ''; els.output.value = '';
+        updateStats();
+      });
+
       updateStats();
     });
-
-    document.getElementById("history").innerHTML = JSON.parse(localStorage.getItem("hist") || "[]").length ? "" : "Nothing yet.";
-    saveHistory(document.getElementById("output").value || ""); // init
   </script>
 </body>
 </html>
