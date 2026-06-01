@@ -53,7 +53,7 @@
     .btn-secondary:hover { background: var(--muted); color: var(--bg); }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-    .stats { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.82rem; color: var(--muted); margin: 10px 0; }
+    .stats { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.82rem; color: var(--muted); margin: 10px 0; }
     .stat-badge { background: var(--surface-hover); padding: 4px 10px; border-radius: 8px; }
 
     .meter { height: 6px; background: var(--surface-hover); border-radius: 4px; overflow: hidden; margin: 12px 0; }
@@ -103,8 +103,8 @@
           <input type="range" id="trans" min="0" max="1" step="0.05" value="0.35">
         </div>
         <div class="slider-group">
-          <div class="slider-header"><span>Imperfection</span><span class="val" id="impVal">0.15</span></div>
-          <input type="range" id="imp" min="0" max="0.3" step="0.05" value="0.15">
+          <div class="slider-header"><span>Punctuation & Flow</span><span class="val" id="punctVal">0.60</span></div>
+          <input type="range" id="punct" min="0" max="1" step="0.05" value="0.60">
         </div>
 
         <h3>📜 Recent Outputs</h3>
@@ -132,9 +132,8 @@
         <div class="tips">
           <strong>📉 Optimization Tips</strong>
           <ul>
-            <li>Chat mode favors natural rhythm & contractions; keep burstiness ≥0.75</li>
-            <li>Pro mode strips filler & enforces active voice; lower transitions ≤0.20</li>
-            <li>Academic mode prioritizes precision & controlled variation; avoid over-swapping</li>
+            <li>Punctuation slider controls comma/semicolon/em-dash placement intensity</li>
+            <li>Chat mode favors natural pauses; Pro/Academic keep flow tighter</li>
             <li>Run through 2 detectors, average scores, then add 1 real metric manually</li>
           </ul>
         </div>
@@ -146,9 +145,9 @@
 
   <script>
     const MODE_PRESETS = {
-      chat:       { burst: 0.80, syn: 0.20, trans: 0.35, imp: 0.15 },
-      pro:        { burst: 0.55, syn: 0.12, trans: 0.15, imp: 0.08 },
-      academic:   { burst: 0.45, syn: 0.25, trans: 0.10, imp: 0.10 }
+      chat:       { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60 },
+      pro:        { burst: 0.55, syn: 0.12, trans: 0.15, punct: 0.70 },
+      academic:   { burst: 0.45, syn: 0.25, trans: 0.10, punct: 0.75 }
     };
 
     const POOLS = {
@@ -157,14 +156,14 @@
       academic: { "utilize":"employ", "commence":"initiate", "subsequently":"following", "therefore":"hence", "nevertheless":"nonetheless", "demonstrate":"evidence", "endeavor":"strive", "facilitate":"promote", "implement":"integrate", "furthermore":"in addition", "in conclusion":"in summary" }
     };
 
-    const config = { burst: 0.80, syn: 0.20, trans: 0.35, imp: 0.15, tone: "chat" };
+    const config = { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60, tone: "chat" };
 
     // UI Bindings
     const bind = (id, key, valId) => {
       const el = document.getElementById(id);
       el.addEventListener("input", () => { config[key] = parseFloat(el.value); document.getElementById(valId).textContent = el.value; });
     };
-    bind("burst", "burst", "burstVal"); bind("syn", "syn", "synVal"); bind("trans", "trans", "transVal"); bind("imp", "imp", "impVal");
+    bind("burst", "burst", "burstVal"); bind("syn", "syn", "synVal"); bind("trans", "trans", "transVal"); bind("punct", "punct", "punctVal");
 
     document.querySelectorAll(".mode-btn").forEach(btn => {
       btn.addEventListener("click", () => {
@@ -173,10 +172,10 @@
         const mode = btn.dataset.mode;
         config.tone = mode;
         const p = MODE_PRESETS[mode];
-        document.getElementById("burst").value = p.burst; config.burst = p.burst; document.getElementById("burstVal").textContent = p.burst;
-        document.getElementById("syn").value = p.syn; config.syn = p.syn; document.getElementById("synVal").textContent = p.syn;
-        document.getElementById("trans").value = p.trans; config.trans = p.trans; document.getElementById("transVal").textContent = p.trans;
-        document.getElementById("imp").value = p.imp; config.imp = p.imp; document.getElementById("impVal").textContent = p.imp;
+        ["burst","syn","trans","punct"].forEach(k => {
+          document.getElementById(k).value = p[k]; config[k] = p[k];
+          document.getElementById(k + "Val").textContent = p[k].toFixed(2);
+        });
         updateStats();
       });
     });
@@ -188,7 +187,70 @@
       document.getElementById("themeToggle").textContent = isDark ? "☀️ Dark" : "🌙 Light";
     });
 
-    // Humanization Engine
+    // Smart Punctuation Engine
+    function applyPunctuation(text) {
+      if (config.punct <= 0) return text;
+      const intensity = config.punct;
+      const abbrGuard = /\b(Mr|Mrs|Ms|Dr|Prof|Inc|Ltd|vs|etc|e\.g|i\.e|cf|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec|St|Ave|Blvd)\b\./i;
+      
+      // 1. Fix missing end punctuation & normalize spacing
+      let sentences = text.split(/(?<=[.!?])\s+/);
+      sentences = sentences.map(s => {
+        s = s.trim();
+        if (!s) return "";
+        if (!/[.!?]$/.test(s) && s.length > 20) s += ".";
+        return s;
+      }).filter(Boolean);
+
+      // 2. Process each sentence
+      const processed = sentences.map(sent => {
+        let s = sent;
+        
+        // Skip if protected by abbreviation
+        if (abbrGuard.test(s)) return s;
+
+        // Introductory/Transitional commas
+        const introMatch = s.match(/^(however|therefore|thus|consequently|furthermore|additionally|moreover|nevertheless|alternatively|meanwhile|specifically|notably|interestingly|unfortunately|fortunately|generally|typically|usually|basically|essentially|fundamentally|first|second|third|finally|initially|subsequently|afterwards|next|then|conversely|on the other hand|in contrast|similarly|likewise|as a result|hence|so|but|yet|and|or|nor)\b/i);
+        if (introMatch && Math.random() < intensity) {
+          const phrase = introMatch[0];
+          const rest = s.slice(phrase.length).trim();
+          if (rest && !/,/.test(rest.charAt(0))) {
+            s = phrase + ", " + rest;
+          }
+        }
+
+        // Compound sentence commas before FANBOYS
+        const fanboys = /\s+(and|but|so|yet|or|nor)\s+/gi;
+        let conjMatch;
+        while ((conjMatch = fanboys.exec(s)) !== null) {
+          const before = s.substring(0, conjMatch.index).trim();
+          const after = s.substring(conjMatch.index + conjMatch[0].length).trim();
+          if (before.length > 18 && after.length > 18 && !/,/.test(s[conjMatch.index - 1]) && Math.random() < intensity) {
+            s = s.substring(0, conjMatch.index) + `, ${conjMatch[1]} ` + after;
+            fanboys.lastIndex = conjMatch.index + conjMatch[1].length + 2;
+          }
+        }
+
+        // Semicolon / Em-dash for flow variety (replaces occasional commas between independent clauses)
+        if (s.includes(",") && Math.random() < intensity * 0.4) {
+          const commaIdx = s.indexOf(",");
+          const before = s.substring(0, commaIdx).trim();
+          const after = s.substring(commaIdx + 1).trim();
+          if (before.length > 25 && after.length > 25 && Math.random() > 0.6) {
+            s = before + "; " + after;
+          } else if (Math.random() > 0.7) {
+            s = before + " — " + after.charAt(0).toUpperCase() + after.slice(1);
+          }
+        }
+
+        // Fix double spaces & ensure single space after punctuation
+        return s.replace(/\s+/g, " ").replace(/([.,;:!?])\s+/g, "$1 ");
+      });
+
+      return processed.join(" ");
+    }
+
+    // Main Humanization Pipeline
     function humanizeText(text) {
       let processed = text.replace(/\b(in conclusion|to summarize|it is important to note|it's worth mentioning|ultimately|furthermore|additionally)\b/gi, () => Math.random() > 0.6 ? "" : "Anyway, ");
       
@@ -229,28 +291,27 @@
           sent = pool[Math.floor(Math.random() * pool.length)] + " " + sent;
         }
 
-        // Imperfections & Contractions
+        // Contractions (Chat only)
         if (config.tone === "chat") {
           sent = sent.replace(/\b(I am|you are|they are|we are|do not|cannot|it is)\b/gi, m => ({
             "I am":"I'm","you are":"you're","they are":"they're","we are":"we're","do not":"don't","cannot":"can't","it is":"it's"
           }[m] || m));
         }
-        if (Math.random() < config.imp) {
-          sent = sent.replace(/^(However|Therefore|Thus|Consequently)\b/gi, m => m.replace("H", "And").replace("T", "So").replace("C", "But"));
-        }
 
         result.push(sent);
       }
-      return result.join(" ").replace(/\s+/g, " ").trim();
+
+      // Apply smart punctuation AFTER main pipeline
+      return applyPunctuation(result.join(" ").replace(/\s+/g, " ").trim());
     }
 
-    // Actions & Stats
+    // UI Actions & Stats
     function updateStats() {
       const out = document.getElementById("output").value;
       if (!out) return;
       const wc = out.split(/\s+/).filter(Boolean).length;
       const sc = (out.match(/[.!?]+/g) || []).length || 1;
-      const readiness = Math.min(100, Math.round((config.burst * 0.3 + (1 - config.syn) * 0.2 + (1 - config.trans) * 0.15 + config.imp * 0.15 + (config.tone === "chat" ? 0.2 : config.tone === "pro" ? 0.1 : 0.05)) * 100));
+      const readiness = Math.min(100, Math.round((config.burst * 0.25 + (1 - Math.abs(config.syn - 0.15)) * 0.2 + config.trans * 0.15 + config.punct * 0.2 + (config.tone === "chat" ? 0.2 : 0.1)) * 100));
       
       document.getElementById("stats").innerHTML = `<span class="stat-badge">Words: ${wc}</span><span class="stat-badge">Sentences: ${sc}</span><span class="stat-badge">Mode: ${config.tone.toUpperCase()}</span>`;
       document.getElementById("readinessMeter").style.width = readiness + "%";
@@ -259,8 +320,8 @@
 
     function saveHistory(text) {
       let h = JSON.parse(localStorage.getItem("humanizer_hist") || "[]");
-      h.unshift({ text: text.substring(0, 60) + "...", full: text, time: new Date().toLocaleTimeString() });
-      if (h.length > 5) h.pop();
+      h.unshift({ text: text.substring(0, 60) + (text.length > 60 ? "..." : ""), full: text, time: new Date().toLocaleTimeString() });
+      if (h.length > 6) h.pop();
       localStorage.setItem("humanizer_hist", JSON.stringify(h));
       renderHistory();
     }
@@ -268,7 +329,7 @@
     function renderHistory() {
       const h = JSON.parse(localStorage.getItem("humanizer_hist") || "[]");
       const el = document.getElementById("history");
-      el.innerHTML = h.length ? h.map(i => `<div class="history-item" data-idx="${h.indexOf(i)}">${i.time} • ${i.text}</div>`).join("") : "No history yet.";
+      el.innerHTML = h.length ? h.map((i, idx) => `<div class="history-item" data-idx="${idx}">${i.time} • ${i.text}</div>`).join("") : "No history yet.";
       el.querySelectorAll(".history-item").forEach(item => {
         item.addEventListener("click", () => {
           const idx = item.dataset.idx;
@@ -290,7 +351,7 @@
         saveHistory(out);
         updateStats();
         btn.disabled = false; btn.innerHTML = '<span>✨ Humanize</span>';
-      }, 300);
+      }, 250);
     });
 
     document.getElementById("copyBtn").addEventListener("click", () => {
