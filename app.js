@@ -384,10 +384,26 @@
     if (elements.lineCount) elements.lineCount.textContent = `Lines: ${lines}`;
     if (elements.modeDisplay) elements.modeDisplay.textContent = `Mode: ${modeName}`;
 
-    // Update readiness meter
-    const readiness = Math.min(100, Math.round((config.burst + config.syn + config.trans + config.punct) / 4 * 100));
+    // Update readiness meter using weighted formula based on detector research
+    // Burstiness matters most (35%), too many synonym swaps look suspicious (25% inverted),
+    // natural connectors help (20%), good punctuation = human-like (20%)
+    const readiness = Math.min(100, Math.round(
+      (config.burst * 0.35) +      // Burstiness matters most
+      ((1 - config.syn) * 0.25) +  // Too many swaps = suspicious
+      (config.trans * 0.20) +      // Natural connectors help
+      (config.punct * 0.20)        // Good punctuation = human-like
+    ) * 100);
+    
     if (elements.readinessMeter) {
       elements.readinessMeter.style.width = `${readiness}%`;
+      // Add color coding based on readiness level
+      if (readiness >= 80) {
+        elements.readinessMeter.style.backgroundColor = '#10b981'; // Green - Excellent
+      } else if (readiness >= 60) {
+        elements.readinessMeter.style.backgroundColor = '#f59e0b'; // Orange - Good
+      } else {
+        elements.readinessMeter.style.backgroundColor = '#ef4444'; // Red - Low
+      }
     }
   }
 
