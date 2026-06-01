@@ -497,4 +497,111 @@
     return div.innerHTML;
   }
 
+  // ===================================
+  // AI DETECTION LOGIC
+  // ===================================
+  const detectBtn = document.getElementById('detectBtn');
+  const detectionSection = document.getElementById('detectionSection');
+  const detectMeterFill = document.getElementById('detectMeterFill');
+  const detectPercent = document.getElementById('detectPercent');
+  const detectStatus = document.getElementById('detectStatus');
+  
+  const HF_API_URL = 'https://api-inference.huggingface.co/models/roberta-base-openai-detector';
+
+  if (detectBtn) {
+    detectBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const inputText = elements.input ? elements.input.value.trim() : '';
+      const outputText = elements.output ? elements.output.value.trim() : '';
+      const text = outputText || inputText;
+      
+      if (!text) {
+        showToast('⚠️ Please enter text to analyze', 'error');
+        return;
+      }
+
+      // UI Loading State
+      detectBtn.disabled = true;
+      detectBtn.querySelector('.btn-text').textContent = 'Checking...';
+      detectionSection.style.display = 'block';
+      detectMeterFill.style.width = '0%';
+      detectPercent.textContent = '...';
+      detectStatus.innerHTML = '<span style="color: var(--muted)">Analyzing patterns...</span>';
+
+      try {
+        const response = await fetch(HF_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inputs: text.substring(0, 1000) }) // Limit to 1000 chars
+        });
+
+        if (response.status === 503) {
+          throw new Error('Model loading. Retrying in 3s...');
+        }
+        if (!response.ok) throw new Error(`API Error: ${response.status}`);
+
+        const data = await response.json();
+        
+        // Parse Response (Handle array or object formats)
+        let aiScore = 0;
+        const results = Array.isArray(data) ? data[0] : data;
+        
+        if (Array.isArray(results)) {
+          const fakeResult = results.find(r => r.label.toLowerCase().includes('fake') || r.label.toLowerCase().includes('ai'));
+          aiScore = fakeResult ? fakeResult.score : (results[0].score || 0);
+        } else if (results.label && results.score) {
+          aiScore = results.label.toLowerCase().includes('fake') || results.label.toLowerCase().includes('ai') 
+            ? results.score 
+            : (1 - results.score);
+        }
+
+        updateDetectionUI(Math.round(aiScore * 100));
+
+      } catch (error) {
+        console.error('Detection failed:', error);
+        
+        if (error.message.includes('503')) {
+          // Retry once for cold start
+          detectStatus.innerHTML = '<span style="color: var(--accent)">⏳ Model warming up... retrying</span>';
+          setTimeout(() => {
+            detectBtn.click();
+          }, 3000);
+          return;
+        }
+        
+        detectStatus.innerHTML = `<span style="color: #ff6b6b">❌ ${error.message}</span>`;
+        detectPercent.textContent = 'Err';
+        showToast('Detection failed. Try again.', 'error');
+      } finally {
+        detectBtn.disabled = false;
+        detectBtn.querySelector('.btn-text').textContent = 'Check AI';
+      }
+    });
+  }
+
+  function updateDetectionUI(score) {
+    detectMeterFill.style.width = `${score}%`;
+    detectPercent.textContent = `${score}%`;
+    
+    let color, icon, msg;
+    if (score < 30) {
+      color = '#4caf50'; // Green
+      icon = '✅';
+      msg = 'Likely Human';
+    } else if (score < 60) {
+      color = '#ffca28'; // Yellow
+      icon = '⚠️';
+      msg = 'Uncertain / Mixed';
+    } else {
+      color = '#ff5252'; // Red
+      icon = '❌';
+      msg = 'Likely AI Generated';
+    }
+
+    detectMeterFill.style.backgroundColor = color;
+    detectStatus.innerHTML = `<span style="color: ${color}"><strong>${icon} ${msg}</strong></span>`;
+  }
+
 })();
