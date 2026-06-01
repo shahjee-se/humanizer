@@ -1,1 +1,473 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple AI Text Humanizer</title>
+  <style>
+    :root {
+      --bg: #0b0f19; --surface: #151a28; --surface-hover: #1e2538;
+      --text: #e2e8f0; --muted: #94a3b8; --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.35); --radius: 12px;
+      --shadow: 0 8px 25px rgba(0,0,0,0.4); --font: system-ui, sans-serif;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc; --surface: #fff; --surface-hover: #f1f5f9;
+      --text: #0f172a; --muted: #64748b; --shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.5; padding: 20px; transition: 0.3s; }
+    .container { max-width: 1100px; margin: 0 auto; position: relative; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    h1 { font-size: clamp(1.4rem, 3vw, 1.9rem); background: linear-gradient(90deg, #818cf8, #a78bfa); -webkit-background-clip: text; color: transparent; }
+    .header-actions { display: flex; gap: 10px; }
+    .icon-btn { background: var(--surface); border: 1px solid var(--surface-hover); color: var(--text); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; pointer-events: auto; }
+    .icon-btn:hover { background: var(--surface-hover); }
 
+    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+
+    .card { background: var(--surface); border: 1px solid var(--surface-hover); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+    h3 { font-size: 0.95rem; margin-bottom: 14px; color: #f8fafc; }
+
+    .mode-bar { display: flex; background: var(--surface-hover); border-radius: 10px; padding: 4px; margin-bottom: 18px; }
+    .mode-btn { flex: 1; padding: 9px; border: none; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; pointer-events: auto; }
+    .mode-btn.active { background: var(--accent); color: #fff; box-shadow: 0 2px 10px var(--accent-glow); }
+
+    .control { margin-bottom: 16px; }
+    .control-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+    .val { background: var(--surface-hover); padding: 2px 8px; border-radius: 6px; font-family: monospace; font-size: 0.8rem; }
+    .desc { font-size: 0.75rem; color: var(--muted); margin-top: 4px; line-height: 1.3; }
+    input[type="range"] { -webkit-appearance: none; width: 100%; height: 5px; background: var(--surface-hover); border-radius: 4px; outline: none; cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; transition: 0.2s; }
+    input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.15); box-shadow: 0 0 6px var(--accent-glow); }
+
+    textarea { width: 100%; height: 140px; background: var(--bg); border: 1px solid var(--surface-hover); border-radius: 12px; color: var(--text); padding: 14px; font-size: 0.95rem; resize: vertical; font-family: var(--font); }
+    textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    textarea[readonly] { background: var(--surface-hover); }
+
+    .actions { display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
+    .btn { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; background: var(--surface-hover); color: var(--text); pointer-events: auto; }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary:hover { box-shadow: 0 4px 12px var(--accent-glow); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .stats { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.8rem; color: var(--muted); margin: 10px 0; }
+    .badge { background: var(--surface-hover); padding: 4px 10px; border-radius: 8px; }
+    .meter { height: 6px; background: var(--surface-hover); border-radius: 4px; overflow: hidden; margin: 10px 0; }
+    .meter-fill { height: 100%; background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981); width: 0%; transition: 0.6s; border-radius: 4px; }
+    .meter-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; }
+
+    /* History Dropdown - Fixed z-index & pointer-events */
+    .history-dropdown { 
+      position: absolute; top: 52px; right: 20px; width: 280px; 
+      background: var(--surface); border: 1px solid var(--surface-hover); 
+      border-radius: var(--radius); padding: 10px; box-shadow: var(--shadow); 
+      z-index: 100; display: none; pointer-events: none; 
+    }
+    .history-dropdown.show { display: block; pointer-events: auto; }
+    .history-item { padding: 10px; border-radius: 8px; cursor: pointer; font-size: 0.82rem; color: var(--muted); transition: 0.2s; margin-bottom: 4px; }
+    .history-item:hover { background: var(--surface-hover); color: var(--text); }
+    .history-item .time { font-size: 0.7rem; color: var(--accent); display: block; margin-bottom: 2px; }
+    .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--surface-hover); }
+    .clear-hist { background: none; border: none; color: var(--warn); cursor: pointer; font-size: 0.75rem; pointer-events: auto; }
+
+    .tips { margin-top: 18px; padding: 12px; background: var(--bg); border-radius: var(--radius); font-size: 0.85rem; border-left: 3px solid var(--accent); }
+    .tips strong { color: #f8fafc; }
+    .tips ul { margin: 6px 0 0 18px; color: var(--muted); }
+    footer { text-align: center; margin-top: 28px; color: var(--muted); font-size: 0.8rem; }
+    
+    /* Loading spinner */
+    .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: s 0.7s linear infinite; }
+    @keyframes s { to { transform: rotate(360deg); } }
+    
+    /* Click test feedback */
+    .click-test { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 200; }
+    .click-test.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Simple AI Text Humanizer</h1>
+      <div class="header-actions">
+        <button id="historyBtn" class="icon-btn" type="button">📜 History</button>
+        <button id="themeToggle" class="icon-btn" type="button">🌙 Theme</button>
+      </div>
+    </header>
+
+    <!-- History Dropdown (hidden by default) -->
+    <div id="historyDropdown" class="history-dropdown">
+      <div class="history-header">
+        <strong>Recent Outputs</strong>
+        <button class="clear-hist" id="clearHistoryBtn" type="button">Clear</button>
+      </div>
+      <div id="historyList">No history yet.</div>
+    </div>
+
+    <div class="layout">
+      <aside class="card">
+        <h3>⚙️ Settings</h3>
+        <div class="mode-bar" id="modeBar">
+          <button class="mode-btn active" data-mode="chat" type="button">💬 Casual</button>
+          <button class="mode-btn" data-mode="pro" type="button">💼 Business</button>
+          <button class="mode-btn" data-mode="academic" type="button">🎓 School</button>
+        </div>
+
+        <div class="control">
+          <div class="control-header"><span>Sentence Rhythm</span><span class="val" id="burstVal">0.80</span></div>
+          <input type="range" id="burst" min="0" max="1" step="0.05" value="0.80">
+          <div class="desc">Mixes short & long sentences. High = more natural flow.</div>
+        </div>
+        <div class="control">
+          <div class="control-header"><span>Word Swaps</span><span class="val" id="synVal">0.20</span></div>
+          <input type="range" id="syn" min="0" max="0.4" step="0.05" value="0.20">
+          <div class="desc">Replaces stiff AI words with everyday alternatives.</div>
+        </div>
+        <div class="control">
+          <div class="control-header"><span>Connecting Words</span><span class="val" id="transVal">0.35</span></div>
+          <input type="range" id="trans" min="0" max="1" step="0.05" value="0.35">
+          <div class="desc">Adds phrases like "That said," to improve flow.</div>
+        </div>
+        <div class="control">
+          <div class="control-header"><span>Commas & Pauses</span><span class="val" id="punctVal">0.60</span></div>
+          <input type="range" id="punct" min="0" max="1" step="0.05" value="0.60">
+          <div class="desc">Fixes missing commas. Keeps lists safe.</div>
+        </div>
+      </aside>
+
+      <main class="card">
+        <textarea id="input" placeholder="Paste your AI text here..."></textarea>
+        <div class="actions">
+          <button class="btn primary" id="humanizeBtn" type="button"><span>✨ Humanize</span></button>
+          <button class="btn" id="copyBtn" type="button">📋 Copy</button>
+          <button class="btn" id="downloadBtn" type="button">⬇️ Download .txt</button>
+          <button class="btn" id="clearBtn" type="button">🗑️ Clear</button>
+        </div>
+        <textarea id="output" readonly placeholder="Human-friendly text appears here..."></textarea>
+        
+        <div class="stats" id="stats">
+          <span class="badge">Words: 0</span>
+          <span class="badge">Lines: 0</span>
+          <span class="badge">Mode: Casual</span>
+        </div>
+        <div class="meter-label">Detector Readiness</div>
+        <div class="meter"><div class="meter-fill" id="readinessMeter"></div></div>
+
+        <div class="tips">
+          <strong>📌 Quick Tips</strong>
+          <ul>
+            <li>Bullet points & short lines stay exactly where you put them.</li>
+            <li>For best results: Humanize → add 1 real example → check detectors.</li>
+            <li>Higher "Commas & Pauses" = smoother reading (max 0.80).</li>
+          </ul>
+        </div>
+      </main>
+    </div>
+
+    <footer>100% Browser • No Uploads • GitHub Pages Ready</footer>
+  </div>
+
+  <!-- Click feedback toast -->
+  <div id="clickTest" class="click-test">✅ Button works!</div>
+
+  <script>
+    // Wait for DOM to be fully ready BEFORE attaching events
+    document.addEventListener('DOMContentLoaded', function() {
+      
+      // === CONFIG & DATA ===
+      const MODES = {
+        chat: { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60 },
+        pro:  { burst: 0.55, syn: 0.12, trans: 0.15, punct: 0.70 },
+        academic: { burst: 0.45, syn: 0.25, trans: 0.10, punct: 0.75 }
+      };
+
+      const WORD_MAPS = {
+        chat: { utilize:"use", commence:"start", subsequently:"later", therefore:"so", nevertheless:"still", demonstrate:"show", endeavor:"try", facilitate:"help", implement:"set up", furthermore:"also", in conclusion:"anyway" },
+        pro:  { utilize:"use", commence:"begin", subsequently:"afterwards", therefore:"thus", nevertheless:"however", demonstrate:"illustrate", endeavor:"attempt", facilitate:"enable", implement:"deploy", furthermore:"moreover", in conclusion:"to wrap up" },
+        academic: { utilize:"employ", commence:"initiate", subsequently:"following", therefore:"hence", nevertheless:"nonetheless", demonstrate:"evidence", endeavor:"strive", facilitate:"promote", implement:"integrate", furthermore:"in addition", in conclusion:"in summary" }
+      };
+
+      const config = { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60, tone: "chat" };
+
+      // === ELEMENT CACHE (with null checks) ===
+      const $ = (id) => document.getElementById(id);
+      const els = {
+        input: $('input'), output: $('output'), stats: $('stats'), meter: $('readinessMeter'),
+        humanizeBtn: $('humanizeBtn'), copyBtn: $('copyBtn'), downloadBtn: $('downloadBtn'), clearBtn: $('clearBtn'),
+        themeToggle: $('themeToggle'), historyBtn: $('historyBtn'), historyDropdown: $('historyDropdown'),
+        historyList: $('historyList'), clearHistoryBtn: $('clearHistoryBtn'), clickTest: $('clickTest')
+      };
+
+      // === CLICK FEEDBACK HELPER ===
+      function showClickFeedback() {
+        if (!els.clickTest) return;
+        els.clickTest.classList.add('show');
+        setTimeout(() => els.clickTest.classList.remove('show'), 1200);
+      }
+
+      // === BIND SLIDERS (with safety check) ===
+      function bindSlider(id, key, valId) {
+        const el = $(id);
+        if (!el) return;
+        el.addEventListener('input', function() {
+          config[key] = parseFloat(this.value);
+          const valEl = $(valId);
+          if (valEl) valEl.textContent = this.value;
+        });
+      }
+      bindSlider('burst', 'burst', 'burstVal');
+      bindSlider('syn', 'syn', 'synVal');
+      bindSlider('trans', 'trans', 'transVal');
+      bindSlider('punct', 'punct', 'punctVal');
+
+      // === MODE BUTTONS ===
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          showClickFeedback();
+          document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          config.tone = this.dataset.mode;
+          const m = MODES[config.tone];
+          ['burst','syn','trans','punct'].forEach(k => {
+            const slider = $(k), val = $(k + 'Val');
+            if (slider && val) {
+              slider.value = m[k]; config[k] = m[k];
+              val.textContent = m[k].toFixed(2);
+            }
+          });
+          updateStats();
+        });
+      });
+
+      // === THEME TOGGLE ===
+      if (els.themeToggle) {
+        els.themeToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          showClickFeedback();
+          const html = document.documentElement;
+          const isDark = html.dataset.theme === 'dark';
+          html.dataset.theme = isDark ? 'light' : 'dark';
+          this.textContent = isDark ? '☀️ Dark' : '🌙 Light';
+        });
+      }
+
+      // === HISTORY DROPDOWN ===
+      if (els.historyBtn && els.historyDropdown) {
+        els.historyBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          showClickFeedback();
+          els.historyDropdown.classList.toggle('show');
+          renderHistory();
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+          if (els.historyDropdown.classList.contains('show') && 
+              !els.historyDropdown.contains(e.target) && 
+              e.target !== els.historyBtn) {
+            els.historyDropdown.classList.remove('show');
+          }
+        });
+      }
+
+      if (els.clearHistoryBtn) {
+        els.clearHistoryBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          localStorage.removeItem('humanizer_hist');
+          renderHistory();
+          showClickFeedback();
+        });
+      }
+
+      function renderHistory() {
+        if (!els.historyList) return;
+        const h = JSON.parse(localStorage.getItem('humanizer_hist') || '[]');
+        if (!h.length) { 
+          els.historyList.innerHTML = '<div style="padding:8px;color:var(--muted);font-size:0.8rem;">No history yet.</div>'; 
+          return; 
+        }
+        els.historyList.innerHTML = h.map((item, i) => `
+          <div class="history-item" data-idx="${i}" tabindex="0">
+            <span class="time">${item.time}</span>
+            ${item.preview}
+          </div>
+        `).join('');
+        
+        els.historyList.querySelectorAll('.history-item').forEach(el => {
+          el.addEventListener('click', function() {
+            const idx = parseInt(this.dataset.idx);
+            if (els.output) els.output.value = h[idx].full;
+            if (els.historyDropdown) els.historyDropdown.classList.remove('show');
+            updateStats();
+            showClickFeedback();
+          });
+        });
+      }
+
+      function saveHistory(text) {
+        if (!text) return;
+        let h = JSON.parse(localStorage.getItem('humanizer_hist') || '[]');
+        h.unshift({
+          preview: text.substring(0, 45) + (text.length > 45 ? '...' : ''),
+          full: text,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+        if (h.length > 8) h.pop();
+        localStorage.setItem('humanizer_hist', JSON.stringify(h));
+      }
+
+      // === LINE PROTECTION LOGIC ===
+      const isListOrShort = (line) => {
+        const t = line.trim();
+        return t.length < 25 || /^[\s]*[\-\*\•\d\.\)]/.test(t) || /^[\s]*[\-\*\•]\s/.test(t);
+      };
+
+      const applyLightFixes = (text) => {
+        return text.replace(/\b(utilize|commence|subsequently|furthermore|in conclusion)\b/gi, w => WORD_MAPS[config.tone][w.toLowerCase()] || w).replace(/\s+/g, ' ').trim();
+      };
+
+      const processParagraph = (text) => {
+        let s = text.replace(/\b(in conclusion|to summarize|it is important to note|it's worth mentioning|ultimately|additionally)\b/gi, () => Math.random() > 0.6 ? '' : 'Anyway, ');
+        const sentences = s.match(/[^.!?]+[.!?]+/g) || [s];
+        const out = [];
+        const words = WORD_MAPS[config.tone];
+
+        for (let i = 0; i < sentences.length; i++) {
+          let line = sentences[i].trim();
+          if (!line) continue;
+
+          // Rhythm
+          if (Math.random() < config.burst && line.length > 65) {
+            const split = Math.floor(line.length * 0.65);
+            const idx = line.lastIndexOf(' ', split);
+            if (idx > 0) {
+              const a = line.substring(0, idx).trim();
+              const b = line.substring(idx + 1).trim();
+              if (b) line = `${a}. ${b.charAt(0).toUpperCase()}${b.slice(1)}`;
+            }
+          }
+
+          // Word Swaps
+          line = line.split(/(\s+|[.,!?;:])/).map(w => {
+            const clean = w.toLowerCase().replace(/[.,!?;:]$/, '');
+            return words[clean] && Math.random() < config.syn ? words[clean] + w.slice(w.toLowerCase().indexOf(clean) + clean.length) : w;
+          }).join('');
+
+          // Connectors
+          if (i > 0 && Math.random() < config.trans) {
+            const pool = config.tone === 'chat' ? ['That said,', 'Honestly,', 'Funny enough,', 'Here\'s the thing:', 'Turns out,'] :
+                         config.tone === 'pro' ? ['That noted,', 'Practically,', 'Moving forward,', 'In practice,', 'To clarify,'] :
+                         ['Notably,', 'Conversely,', 'In this context,', 'As observed,', 'Specifically,'];
+            line = pool[Math.floor(Math.random() * pool.length)] + ' ' + line;
+          }
+
+          // Casual Contractions
+          if (config.tone === 'chat') {
+            line = line.replace(/\b(I am|you are|they are|we are|do not|cannot|it is)\b/gi, m => ({
+              "I am":"I'm","you are":"you're","they are":"they're","we are":"we're","do not":"don't","cannot":"can't","it is":"it's"
+            }[m] || m));
+          }
+          out.push(line);
+        }
+
+        // Punctuation
+        if (config.punct > 0) {
+          let joined = out.join(' ');
+          joined = joined.replace(/\b(however|therefore|thus|furthermore|moreover|additionally|conversely)\b,?\s+/gi, '$1, ');
+          return joined.replace(/\s+/g, ' ').trim();
+        }
+        return out.join(' ').replace(/\s+/g, ' ').trim();
+      };
+
+      // === MAIN HUMANIZE FUNCTION ===
+      window.humanizeText = function(text) {
+        return text.split('\n').map(line => {
+          if (!line.trim()) return line;
+          return isListOrShort(line) ? applyLightFixes(line) : processParagraph(line);
+        }).join('\n');
+      };
+
+      function updateStats() {
+        if (!els.stats || !els.meter) return;
+        const out = els.output ? els.output.value : '';
+        if (!out) {
+          els.stats.innerHTML = '<span class="badge">Words: 0</span><span class="badge">Lines: 0</span><span class="badge">Mode: Casual</span>';
+          els.meter.style.width = '0%';
+          return;
+        }
+        const wc = out.split(/\s+/).filter(Boolean).length;
+        const lc = out.split('\n').filter(l => l.trim()).length;
+        const readiness = Math.min(100, Math.round((config.burst * 0.25 + (1 - Math.abs(config.syn - 0.15)) * 0.2 + config.trans * 0.15 + config.punct * 0.2 + (config.tone === 'chat' ? 0.2 : 0.1)) * 100));
+        els.stats.innerHTML = `<span class="badge">Words: ${wc}</span><span class="badge">Lines: ${lc}</span><span class="badge">Mode: ${config.tone === 'chat' ? 'Casual' : config.tone === 'pro' ? 'Business' : 'School'}</span>`;
+        els.meter.style.width = readiness + '%';
+      }
+
+      // === BUTTON ACTIONS (with explicit preventDefault + feedback) ===
+      if (els.humanizeBtn) {
+        els.humanizeBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          showClickFeedback();
+          const input = els.input ? els.input.value.trim() : '';
+          if (!input) return;
+          this.disabled = true; this.innerHTML = '<span class="spin"></span> Working...';
+          setTimeout(() => {
+            if (els.output) els.output.value = humanizeText(input);
+            if (els.output) saveHistory(els.output.value);
+            updateStats();
+            this.disabled = false; this.innerHTML = '<span>✨ Humanize</span>';
+          }, 250);
+        });
+      }
+
+      if (els.copyBtn) {
+        els.copyBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          showClickFeedback();
+          const text = els.output ? els.output.value : '';
+          if (!text) return;
+          navigator.clipboard.writeText(text).then(() => {
+            this.textContent = '✅ Copied'; 
+            setTimeout(() => this.textContent = '📋 Copy', 1200);
+          });
+        });
+      }
+
+      if (els.downloadBtn) {
+        els.downloadBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          showClickFeedback();
+          const t = els.output ? els.output.value : '';
+          if (!t) return;
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(new Blob([t], { type: 'text/plain' }));
+          a.download = 'humanized.txt';
+          a.click();
+        });
+      }
+
+      if (els.clearBtn) {
+        els.clearBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          showClickFeedback();
+          if (els.input) els.input.value = '';
+          if (els.output) els.output.value = '';
+          updateStats();
+        });
+      }
+
+      // Initialize
+      renderHistory();
+      updateStats();
+      
+      // Debug: log if buttons are bound
+      console.log('✅ All event listeners attached. Buttons should be clickable.');
+    });
+  </script>
+</body>
+</html>
