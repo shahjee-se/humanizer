@@ -3,379 +3,319 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Text Humanizer Pro</title>
+  <title>Simple AI Text Humanizer</title>
   <style>
     :root {
       --bg: #0b0f19; --surface: #151a28; --surface-hover: #1e2538;
       --text: #e2e8f0; --muted: #94a3b8; --accent: #6366f1;
       --accent-glow: rgba(99, 102, 241, 0.35); --success: #10b981;
-      --warn: #f59e0b; --danger: #ef4444;
-      --radius: 14px; --shadow: 0 10px 35px rgba(0,0,0,0.45);
-      --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --warn: #f59e0b; --radius: 14px; --shadow: 0 10px 35px rgba(0,0,0,0.45);
+      --font: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     [data-theme="light"] {
       --bg: #f8fafc; --surface: #ffffff; --surface-hover: #f1f5f9;
       --text: #0f172a; --muted: #64748b; --shadow: 0 10px 35px rgba(0,0,0,0.12);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.55; padding: 20px; transition: background 0.3s, color 0.3s; }
-    .container { max-width: 1150px; margin: 0 auto; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.5; padding: 20px; transition: 0.3s; }
+    .container { max-width: 1100px; margin: 0 auto; }
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-    h1 { font-size: clamp(1.5rem, 3.5vw, 2rem); background: linear-gradient(90deg, #818cf8, #a78bfa, #c084fc); -webkit-background-clip: text; color: transparent; }
+    h1 { font-size: clamp(1.5rem, 3.5vw, 2rem); background: linear-gradient(90deg, #818cf8, #a78bfa); -webkit-background-clip: text; color: transparent; }
     .theme-btn { background: var(--surface); border: 1px solid var(--muted); color: var(--text); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; }
 
-    .grid { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
-    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
 
     .card { background: var(--surface); border: 1px solid rgba(148,163,184,0.15); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
-    h3 { font-size: 0.95rem; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    h3 { font-size: 0.95rem; margin-bottom: 14px; color: #f8fafc; }
 
     .mode-bar { display: flex; background: var(--surface-hover); border-radius: 10px; padding: 4px; margin-bottom: 18px; }
-    .mode-btn { flex: 1; padding: 9px; border: none; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; transition: 0.2s; font-weight: 500; }
+    .mode-btn { flex: 1; padding: 9px; border: none; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
     .mode-btn.active { background: var(--accent); color: #fff; box-shadow: 0 2px 10px var(--accent-glow); }
 
-    .slider-group { margin-bottom: 16px; }
-    .slider-header { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
-    .val { background: var(--surface-hover); padding: 2px 8px; border-radius: 6px; font-family: monospace; }
+    .control { margin-bottom: 16px; }
+    .control-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+    .val { background: var(--surface-hover); padding: 2px 8px; border-radius: 6px; font-family: monospace; font-size: 0.8rem; }
+    .desc { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
     input[type="range"] { -webkit-appearance: none; width: 100%; height: 5px; background: var(--surface-hover); border-radius: 4px; outline: none; cursor: pointer; }
     input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; transition: 0.2s; }
-    input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.2); box-shadow: 0 0 8px var(--accent-glow); }
+    input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.15); box-shadow: 0 0 6px var(--accent-glow); }
 
-    textarea { width: 100%; height: 150px; background: var(--bg); border: 1px solid var(--surface-hover); border-radius: 12px; color: var(--text); padding: 14px; font-size: 0.95rem; resize: vertical; font-family: var(--font); transition: border 0.2s; }
+    textarea { width: 100%; height: 140px; background: var(--bg); border: 1px solid var(--surface-hover); border-radius: 12px; color: var(--text); padding: 14px; font-size: 0.95rem; resize: vertical; font-family: var(--font); }
     textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
-    textarea[readonly] { background: var(--surface-hover); opacity: 0.9; }
+    textarea[readonly] { background: var(--surface-hover); }
 
     .actions { display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
-    .btn { flex: 1; padding: 11px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px var(--accent-glow); }
-    .btn-secondary { background: var(--surface-hover); color: var(--text); }
-    .btn-secondary:hover { background: var(--muted); color: var(--bg); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; background: var(--surface-hover); color: var(--text); }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary:hover { box-shadow: 0 4px 12px var(--accent-glow); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    .stats { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.82rem; color: var(--muted); margin: 10px 0; }
-    .stat-badge { background: var(--surface-hover); padding: 4px 10px; border-radius: 8px; }
+    .stats { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.8rem; color: var(--muted); margin: 10px 0; }
+    .badge { background: var(--surface-hover); padding: 4px 10px; border-radius: 8px; }
+    .meter { height: 6px; background: var(--surface-hover); border-radius: 4px; overflow: hidden; margin: 10px 0; }
+    .meter-fill { height: 100%; background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981); width: 0%; transition: 0.6s; border-radius: 4px; }
+    .meter-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; }
 
-    .meter { height: 6px; background: var(--surface-hover); border-radius: 4px; overflow: hidden; margin: 12px 0; }
-    .meter-fill { height: 100%; background: linear-gradient(90deg, var(--danger), var(--warn), var(--success)); width: 0%; transition: width 0.6s; border-radius: 4px; }
-
-    .history-list { max-height: 120px; overflow-y: auto; font-size: 0.82rem; color: var(--muted); }
+    .history { max-height: 110px; overflow-y: auto; font-size: 0.8rem; color: var(--muted); margin-top: 10px; }
     .history-item { padding: 8px 10px; border-bottom: 1px solid var(--surface-hover); cursor: pointer; transition: 0.2s; }
     .history-item:hover { background: var(--surface-hover); color: var(--text); }
-    .history-item:last-child { border-bottom: none; }
-
-    .tips { margin-top: 20px; padding: 14px; background: var(--bg); border-radius: var(--radius); font-size: 0.88rem; border-left: 3px solid var(--accent); }
-    .tips strong { color: var(--text); }
-    .tips ul { margin: 8px 0 0 18px; color: var(--muted); }
-    .tips li { margin-bottom: 5px; }
-
-    footer { text-align: center; margin-top: 32px; color: var(--muted); font-size: 0.8rem; }
-    .loading { display: inline-block; width: 14px; height: 14px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .tips { margin-top: 18px; padding: 12px; background: var(--bg); border-radius: var(--radius); font-size: 0.85rem; border-left: 3px solid var(--accent); }
+    .tips strong { color: #f8fafc; }
+    .tips ul { margin: 6px 0 0 18px; color: var(--muted); }
+    footer { text-align: center; margin-top: 28px; color: var(--muted); font-size: 0.8rem; }
+    .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: s 0.7s linear infinite; }
+    @keyframes s { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>AI Text Humanizer</h1>
+      <h1>Simple AI Text Humanizer</h1>
       <button class="theme-btn" id="themeToggle">🌙 Light</button>
     </header>
 
-    <div class="grid">
+    <div class="layout">
       <aside class="card">
-        <h3>⚙️ Engine Config</h3>
+        <h3>⚙️ Settings</h3>
         <div class="mode-bar" id="modeBar">
-          <button class="mode-btn active" data-mode="chat">💬 Chat</button>
-          <button class="mode-btn" data-mode="pro">💼 Pro</button>
-          <button class="mode-btn" data-mode="academic">🎓 Academic</button>
+          <button class="mode-btn active" data-mode="chat">💬 Casual</button>
+          <button class="mode-btn" data-mode="pro">💼 Business</button>
+          <button class="mode-btn" data-mode="academic">🎓 School</button>
         </div>
 
-        <div class="slider-group">
-          <div class="slider-header"><span>Burstiness</span><span class="val" id="burstVal">0.80</span></div>
+        <div class="control">
+          <div class="control-header"><span>Sentence Rhythm</span><span class="val" id="burstVal">0.80</span></div>
           <input type="range" id="burst" min="0" max="1" step="0.05" value="0.80">
+          <div class="desc">Mixes short & long sentences. High = more natural flow.</div>
         </div>
-        <div class="slider-group">
-          <div class="slider-header"><span>Synonym Rate</span><span class="val" id="synVal">0.20</span></div>
+        <div class="control">
+          <div class="control-header"><span>Word Swaps</span><span class="val" id="synVal">0.20</span></div>
           <input type="range" id="syn" min="0" max="0.4" step="0.05" value="0.20">
+          <div class="desc">Replaces stiff AI words with everyday alternatives.</div>
         </div>
-        <div class="slider-group">
-          <div class="slider-header"><span>Transition Freq</span><span class="val" id="transVal">0.35</span></div>
+        <div class="control">
+          <div class="control-header"><span>Connecting Words</span><span class="val" id="transVal">0.35</span></div>
           <input type="range" id="trans" min="0" max="1" step="0.05" value="0.35">
+          <div class="desc">Adds phrases like "That said," or "In practice," to improve flow.</div>
         </div>
-        <div class="slider-group">
-          <div class="slider-header"><span>Punctuation & Flow</span><span class="val" id="punctVal">0.60</span></div>
+        <div class="control">
+          <div class="control-header"><span>Commas & Pauses</span><span class="val" id="punctVal">0.60</span></div>
           <input type="range" id="punct" min="0" max="1" step="0.05" value="0.60">
+          <div class="desc">Fixes missing commas & adds natural pauses. Keeps lists safe.</div>
         </div>
 
         <h3>📜 Recent Outputs</h3>
-        <div class="history-list" id="history">No history yet.</div>
+        <div class="history" id="history">Nothing yet.</div>
       </aside>
 
       <main class="card">
-        <textarea id="input" placeholder="Paste AI draft here..."></textarea>
+        <textarea id="input" placeholder="Paste your AI text here..."></textarea>
         <div class="actions">
-          <button class="btn btn-primary" id="humanizeBtn"><span>✨ Humanize</span></button>
-          <button class="btn btn-secondary" id="copyBtn">📋 Copy</button>
-          <button class="btn btn-secondary" id="downloadBtn">⬇️ .txt</button>
-          <button class="btn btn-secondary" id="clearBtn">🗑️ Clear</button>
+          <button class="btn primary" id="humanizeBtn"><span>✨ Humanize</span></button>
+          <button class="btn" id="copyBtn">📋 Copy</button>
+          <button class="btn" id="downloadBtn">⬇️ Download .txt</button>
+          <button class="btn" id="clearBtn">🗑️ Clear</button>
         </div>
-        <textarea id="output" readonly placeholder="Humanized text appears here..."></textarea>
+        <textarea id="output" readonly placeholder="Human-friendly text appears here..."></textarea>
         
         <div class="stats" id="stats">
-          <span class="stat-badge">Words: 0</span>
-          <span class="stat-badge">Sentences: 0</span>
-          <span class="stat-badge">Mode: Chat</span>
+          <span class="badge">Words: 0</span>
+          <span class="badge">Lines: 0</span>
+          <span class="badge">Mode: Casual</span>
         </div>
+        <div class="meter-label">Detector Readiness</div>
         <div class="meter"><div class="meter-fill" id="readinessMeter"></div></div>
-        <div style="font-size:0.78rem; color:var(--muted); margin-bottom:10px;">Detector Readiness: <span id="readinessText">0%</span></div>
 
         <div class="tips">
-          <strong>📉 Optimization Tips</strong>
+          <strong>📌 Quick Tips</strong>
           <ul>
-            <li>Punctuation slider controls comma/semicolon/em-dash placement intensity</li>
-            <li>Chat mode favors natural pauses; Pro/Academic keep flow tighter</li>
-            <li>Run through 2 detectors, average scores, then add 1 real metric manually</li>
+            <li>Bullet points & short lines stay exactly where you put them.</li>
+            <li>For best results: Humanize → add 1 real example → check with 1-2 detectors.</li>
+            <li>Higher "Commas & Pauses" = smoother reading, but don't go over 0.80.</li>
           </ul>
         </div>
       </main>
     </div>
 
-    <footer>100% Client-Side • Research-Tuned Presets • Zero Data Leaves Your Browser</footer>
+    <footer>100% Runs in Your Browser • No Data Uploaded • Ready for GitHub Pages</footer>
   </div>
 
   <script>
-    const MODE_PRESETS = {
-      chat:       { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60 },
-      pro:        { burst: 0.55, syn: 0.12, trans: 0.15, punct: 0.70 },
-      academic:   { burst: 0.45, syn: 0.25, trans: 0.10, punct: 0.75 }
+    // Simple presets tuned from top humanizer patterns
+    const MODES = {
+      chat: { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60 },
+      pro:  { burst: 0.55, syn: 0.12, trans: 0.15, punct: 0.70 },
+      academic: { burst: 0.45, syn: 0.25, trans: 0.10, punct: 0.75 }
     };
 
-    const POOLS = {
-      chat: { "utilize":"use", "commence":"start", "subsequently":"later", "therefore":"so", "nevertheless":"still", "demonstrate":"show", "endeavor":"try", "facilitate":"help", "implement":"set up", "furthermore":"also", "in conclusion":"anyway" },
-      pro: { "utilize":"use", "commence":"begin", "subsequently":"afterwards", "therefore":"thus", "nevertheless":"however", "demonstrate":"illustrate", "endeavor":"attempt", "facilitate":"enable", "implement":"deploy", "furthermore":"moreover", "in conclusion":"to wrap up" },
-      academic: { "utilize":"employ", "commence":"initiate", "subsequently":"following", "therefore":"hence", "nevertheless":"nonetheless", "demonstrate":"evidence", "endeavor":"strive", "facilitate":"promote", "implement":"integrate", "furthermore":"in addition", "in conclusion":"in summary" }
+    const WORD_MAPS = {
+      chat: { utilize:"use", commence:"start", subsequently:"later", therefore:"so", nevertheless:"still", demonstrate:"show", endeavor:"try", facilitate:"help", implement:"set up", furthermore:"also", in conclusion:"anyway" },
+      pro:  { utilize:"use", commence:"begin", subsequently:"afterwards", therefore:"thus", nevertheless:"however", demonstrate:"illustrate", endeavor:"attempt", facilitate:"enable", implement:"deploy", furthermore:"moreover", in conclusion:"to wrap up" },
+      academic: { utilize:"employ", commence:"initiate", subsequently:"following", therefore:"hence", nevertheless:"nonetheless", demonstrate:"evidence", endeavor:"strive", facilitate:"promote", implement:"integrate", furthermore:"in addition", in conclusion:"in summary" }
     };
 
     const config = { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60, tone: "chat" };
 
-    // UI Bindings
+    // Bind UI sliders
     const bind = (id, key, valId) => {
       const el = document.getElementById(id);
       el.addEventListener("input", () => { config[key] = parseFloat(el.value); document.getElementById(valId).textContent = el.value; });
     };
     bind("burst", "burst", "burstVal"); bind("syn", "syn", "synVal"); bind("trans", "trans", "transVal"); bind("punct", "punct", "punctVal");
 
+    // Mode switching
     document.querySelectorAll(".mode-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        const mode = btn.dataset.mode;
-        config.tone = mode;
-        const p = MODE_PRESETS[mode];
+        const m = btn.dataset.mode; config.tone = m;
         ["burst","syn","trans","punct"].forEach(k => {
-          document.getElementById(k).value = p[k]; config[k] = p[k];
-          document.getElementById(k + "Val").textContent = p[k].toFixed(2);
+          document.getElementById(k).value = MODES[m][k]; config[k] = MODES[m][k];
+          document.getElementById(k + "Val").textContent = MODES[m][k].toFixed(2);
         });
         updateStats();
       });
     });
 
+    // Theme toggle
     document.getElementById("themeToggle").addEventListener("click", () => {
       const html = document.documentElement;
-      const isDark = html.getAttribute("data-theme") === "dark";
-      html.setAttribute("data-theme", isDark ? "light" : "dark");
-      document.getElementById("themeToggle").textContent = isDark ? "☀️ Dark" : "🌙 Light";
+      const dark = html.dataset.theme === "dark";
+      html.dataset.theme = dark ? "light" : "dark";
+      document.getElementById("themeToggle").textContent = dark ? "☀️ Dark" : "🌙 Light";
     });
 
-    // Smart Punctuation Engine
-    function applyPunctuation(text) {
-      if (config.punct <= 0) return text;
-      const intensity = config.punct;
-      const abbrGuard = /\b(Mr|Mrs|Ms|Dr|Prof|Inc|Ltd|vs|etc|e\.g|i\.e|cf|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec|St|Ave|Blvd)\b\./i;
-      
-      // 1. Fix missing end punctuation & normalize spacing
-      let sentences = text.split(/(?<=[.!?])\s+/);
-      sentences = sentences.map(s => {
-        s = s.trim();
-        if (!s) return "";
-        if (!/[.!?]$/.test(s) && s.length > 20) s += ".";
-        return s;
-      }).filter(Boolean);
-
-      // 2. Process each sentence
-      const processed = sentences.map(sent => {
-        let s = sent;
-        
-        // Skip if protected by abbreviation
-        if (abbrGuard.test(s)) return s;
-
-        // Introductory/Transitional commas
-        const introMatch = s.match(/^(however|therefore|thus|consequently|furthermore|additionally|moreover|nevertheless|alternatively|meanwhile|specifically|notably|interestingly|unfortunately|fortunately|generally|typically|usually|basically|essentially|fundamentally|first|second|third|finally|initially|subsequently|afterwards|next|then|conversely|on the other hand|in contrast|similarly|likewise|as a result|hence|so|but|yet|and|or|nor)\b/i);
-        if (introMatch && Math.random() < intensity) {
-          const phrase = introMatch[0];
-          const rest = s.slice(phrase.length).trim();
-          if (rest && !/,/.test(rest.charAt(0))) {
-            s = phrase + ", " + rest;
-          }
-        }
-
-        // Compound sentence commas before FANBOYS
-        const fanboys = /\s+(and|but|so|yet|or|nor)\s+/gi;
-        let conjMatch;
-        while ((conjMatch = fanboys.exec(s)) !== null) {
-          const before = s.substring(0, conjMatch.index).trim();
-          const after = s.substring(conjMatch.index + conjMatch[0].length).trim();
-          if (before.length > 18 && after.length > 18 && !/,/.test(s[conjMatch.index - 1]) && Math.random() < intensity) {
-            s = s.substring(0, conjMatch.index) + `, ${conjMatch[1]} ` + after;
-            fanboys.lastIndex = conjMatch.index + conjMatch[1].length + 2;
-          }
-        }
-
-        // Semicolon / Em-dash for flow variety (replaces occasional commas between independent clauses)
-        if (s.includes(",") && Math.random() < intensity * 0.4) {
-          const commaIdx = s.indexOf(",");
-          const before = s.substring(0, commaIdx).trim();
-          const after = s.substring(commaIdx + 1).trim();
-          if (before.length > 25 && after.length > 25 && Math.random() > 0.6) {
-            s = before + "; " + after;
-          } else if (Math.random() > 0.7) {
-            s = before + " — " + after.charAt(0).toUpperCase() + after.slice(1);
-          }
-        }
-
-        // Fix double spaces & ensure single space after punctuation
-        return s.replace(/\s+/g, " ").replace(/([.,;:!?])\s+/g, "$1 ");
-      });
-
-      return processed.join(" ");
+    // Formatting-safe humanization
+    function isListOrShort(line) {
+      const t = line.trim();
+      return t.length < 25 || /^[\s]*[\-\*\•\d\)]+\.\s/.test(t) || /^[\s]*[\-\*\•]\s/.test(t);
     }
 
-    // Main Humanization Pipeline
-    function humanizeText(text) {
-      let processed = text.replace(/\b(in conclusion|to summarize|it is important to note|it's worth mentioning|ultimately|furthermore|additionally)\b/gi, () => Math.random() > 0.6 ? "" : "Anyway, ");
-      
+    function applyLightFixes(text) {
+      let out = text.replace(/\b(utilize|commence|subsequently|furthermore|in conclusion)\b/gi, w => WORD_MAPS[config.tone][w.toLowerCase()] || w);
+      return out.replace(/\s+/g, " ").trim();
+    }
+
+    function applyFullPipeline(text) {
+      // Remove AI filler
+      let processed = text.replace(/\b(in conclusion|to summarize|it is important to note|it's worth mentioning|ultimately|additionally)\b/gi, () => Math.random() > 0.6 ? "" : "Anyway, ");
+
+      // Sentence split
       const sentences = processed.match(/[^.!?]+[.!?]+/g) || [processed];
       const result = [];
-      const synonyms = POOLS[config.tone];
+      const words = WORD_MAPS[config.tone];
 
       for (let i = 0; i < sentences.length; i++) {
-        let sent = sentences[i].trim();
-        if (!sent) continue;
+        let s = sentences[i].trim();
+        if (!s) continue;
 
-        // Burstiness split
-        if (Math.random() < config.burst && sent.length > 65) {
-          const split = Math.floor(sent.length * 0.65);
-          const idx = sent.lastIndexOf(" ", split);
+        // Mix sentence lengths
+        if (Math.random() < config.burst && s.length > 65) {
+          const split = Math.floor(s.length * 0.65);
+          const idx = s.lastIndexOf(" ", split);
           if (idx > 0) {
-            const a = sent.substring(0, idx).trim();
-            const b = sent.substring(idx + 1).trim();
-            if (b) sent = `${a}. ${b.charAt(0).toUpperCase()}${b.slice(1)}`;
+            const a = s.substring(0, idx).trim();
+            const b = s.substring(idx + 1).trim();
+            if (b) s = `${a}. ${b.charAt(0).toUpperCase()}${b.slice(1)}`;
           }
         }
 
-        // Synonym swap
-        const words = sent.split(/(\s+|[.,!?;:])/);
-        sent = words.map(w => {
+        // Swap words
+        s = s.split(/(\s+|[.,!?;:])/).map(w => {
           const clean = w.toLowerCase().replace(/[.,!?;:]$/, "");
-          if (synonyms[clean] && Math.random() < config.syn) {
-            return synonyms[clean] + w.slice(w.toLowerCase().indexOf(clean) + clean.length);
-          }
-          return w;
+          return words[clean] && Math.random() < config.syn ? words[clean] + w.slice(w.toLowerCase().indexOf(clean) + clean.length) : w;
         }).join("");
 
-        // Transitions
+        // Add connectors
         if (i > 0 && Math.random() < config.trans) {
           const pool = config.tone === "chat" ? ["That said,", "Honestly,", "Funny enough,", "Here's the thing:", "Turns out,"] :
                        config.tone === "pro" ? ["That noted,", "Practically,", "Moving forward,", "In practice,", "To clarify,"] :
                        ["Notably,", "Conversely,", "In this context,", "As observed,", "Specifically,"];
-          sent = pool[Math.floor(Math.random() * pool.length)] + " " + sent;
+          s = pool[Math.floor(Math.random() * pool.length)] + " " + s;
         }
 
-        // Contractions (Chat only)
+        // Contractions for casual
         if (config.tone === "chat") {
-          sent = sent.replace(/\b(I am|you are|they are|we are|do not|cannot|it is)\b/gi, m => ({
+          s = s.replace(/\b(I am|you are|they are|we are|do not|cannot|it is)\b/gi, m => ({
             "I am":"I'm","you are":"you're","they are":"they're","we are":"we're","do not":"don't","cannot":"can't","it is":"it's"
           }[m] || m));
         }
-
-        result.push(sent);
+        result.push(s);
       }
 
-      // Apply smart punctuation AFTER main pipeline
-      return applyPunctuation(result.join(" ").replace(/\s+/g, " ").trim());
+      // Smart punctuation (respects line breaks)
+      if (config.punct > 0) {
+        let joined = result.join(" ");
+        // Add commas after transitions
+        joined = joined.replace(/\b(however|therefore|thus|furthermore|moreover|additionally|conversely|notably|interestingly)\b,/gi, "$1,");
+        // Fix missing periods on long runs
+        joined = joined.replace(/(\w{25,})\s+(\w)/g, (m, a, b) => Math.random() < config.punct * 0.3 ? `${a}. ${b}` : m);
+        return joined.replace(/\s+/g, " ").trim();
+      }
+      return result.join(" ").replace(/\s+/g, " ").trim();
     }
 
-    // UI Actions & Stats
+    function humanizeText(text) {
+      return text.split('\n').map(line => {
+        if (!line.trim()) return line;
+        return isListOrShort(line) ? applyLightFixes(line) : applyFullPipeline(line);
+      }).join('\n');
+    }
+
+    // UI Actions
     function updateStats() {
       const out = document.getElementById("output").value;
       if (!out) return;
       const wc = out.split(/\s+/).filter(Boolean).length;
-      const sc = (out.match(/[.!?]+/g) || []).length || 1;
+      const lc = out.split('\n').filter(l => l.trim()).length;
       const readiness = Math.min(100, Math.round((config.burst * 0.25 + (1 - Math.abs(config.syn - 0.15)) * 0.2 + config.trans * 0.15 + config.punct * 0.2 + (config.tone === "chat" ? 0.2 : 0.1)) * 100));
-      
-      document.getElementById("stats").innerHTML = `<span class="stat-badge">Words: ${wc}</span><span class="stat-badge">Sentences: ${sc}</span><span class="stat-badge">Mode: ${config.tone.toUpperCase()}</span>`;
+      document.getElementById("stats").innerHTML = `<span class="badge">Words: ${wc}</span><span class="badge">Lines: ${lc}</span><span class="badge">Mode: ${config.tone === 'chat' ? 'Casual' : config.tone === 'pro' ? 'Business' : 'School'}</span>`;
       document.getElementById("readinessMeter").style.width = readiness + "%";
-      document.getElementById("readinessText").textContent = readiness + "%";
     }
 
     function saveHistory(text) {
-      let h = JSON.parse(localStorage.getItem("humanizer_hist") || "[]");
-      h.unshift({ text: text.substring(0, 60) + (text.length > 60 ? "..." : ""), full: text, time: new Date().toLocaleTimeString() });
+      let h = JSON.parse(localStorage.getItem("hist") || "[]");
+      h.unshift({ text: text.substring(0, 55) + (text.length > 55 ? "..." : ""), full: text, time: new Date().toLocaleTimeString() });
       if (h.length > 6) h.pop();
-      localStorage.setItem("humanizer_hist", JSON.stringify(h));
-      renderHistory();
-    }
-
-    function renderHistory() {
-      const h = JSON.parse(localStorage.getItem("humanizer_hist") || "[]");
-      const el = document.getElementById("history");
-      el.innerHTML = h.length ? h.map((i, idx) => `<div class="history-item" data-idx="${idx}">${i.time} • ${i.text}</div>`).join("") : "No history yet.";
-      el.querySelectorAll(".history-item").forEach(item => {
-        item.addEventListener("click", () => {
-          const idx = item.dataset.idx;
-          document.getElementById("output").value = h[idx].full;
-          updateStats();
-        });
-      });
+      localStorage.setItem("hist", JSON.stringify(h));
+      document.getElementById("history").innerHTML = h.map((i, idx) => `<div class="history-item" data-idx="${idx}">${i.time} • ${i.text}</div>`).join("");
+      document.querySelectorAll(".history-item").forEach(el => el.onclick = () => { document.getElementById("output").value = h[el.dataset.idx].full; updateStats(); });
     }
 
     document.getElementById("humanizeBtn").addEventListener("click", () => {
       const input = document.getElementById("input").value.trim();
       if (!input) return;
       const btn = document.getElementById("humanizeBtn");
-      btn.disabled = true; btn.innerHTML = '<span class="loading"></span> Processing...';
-      
+      btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Working...';
       setTimeout(() => {
-        const out = humanizeText(input);
-        document.getElementById("output").value = out;
-        saveHistory(out);
+        document.getElementById("output").value = humanizeText(input);
+        saveHistory(document.getElementById("output").value);
         updateStats();
         btn.disabled = false; btn.innerHTML = '<span>✨ Humanize</span>';
-      }, 250);
+      }, 200);
     });
 
     document.getElementById("copyBtn").addEventListener("click", () => {
       navigator.clipboard.writeText(document.getElementById("output").value).then(() => {
-        const btn = document.getElementById("copyBtn"); btn.textContent = "✅ Copied"; setTimeout(() => btn.textContent = "📋 Copy", 1400);
+        const b = document.getElementById("copyBtn"); b.textContent = "✅ Copied"; setTimeout(() => b.textContent = "📋 Copy", 1200);
       });
     });
 
     document.getElementById("downloadBtn").addEventListener("click", () => {
-      const text = document.getElementById("output").value;
-      if (!text) return;
-      const blob = new Blob([text], { type: "text/plain" });
-      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "humanized.txt"; a.click();
+      const t = document.getElementById("output").value; if (!t) return;
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([t], { type: "text/plain" })); a.download = "humanized.txt"; a.click();
     });
 
     document.getElementById("clearBtn").addEventListener("click", () => {
-      document.getElementById("input").value = "";
-      document.getElementById("output").value = "";
+      ["input","output"].forEach(id => document.getElementById(id).value = "");
       document.getElementById("readinessMeter").style.width = "0%";
-      document.getElementById("readinessText").textContent = "0%";
-      document.getElementById("stats").innerHTML = `<span class="stat-badge">Words: 0</span><span class="stat-badge">Sentences: 0</span><span class="stat-badge">Mode: ${config.tone.toUpperCase()}</span>`;
+      updateStats();
     });
 
-    renderHistory(); updateStats();
+    document.getElementById("history").innerHTML = JSON.parse(localStorage.getItem("hist") || "[]").length ? "" : "Nothing yet.";
+    saveHistory(document.getElementById("output").value || ""); // init
   </script>
 </body>
 </html>
