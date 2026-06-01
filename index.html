@@ -8,12 +8,11 @@
     :root {
       --bg: #0b0f19; --surface: #151a28; --surface-hover: #1e2538;
       --text: #e2e8f0; --muted: #94a3b8; --accent: #6366f1;
-      --accent-glow: rgba(99, 102, 241, 0.35); --success: #10b981;
-      --warn: #f59e0b; --radius: 12px; --shadow: 0 8px 25px rgba(0,0,0,0.4);
-      --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+      --accent-glow: rgba(99, 102, 241, 0.35); --radius: 12px;
+      --shadow: 0 8px 25px rgba(0,0,0,0.4); --font: system-ui, sans-serif;
     }
     [data-theme="light"] {
-      --bg: #f8fafc; --surface: #ffffff; --surface-hover: #f1f5f9;
+      --bg: #f8fafc; --surface: #fff; --surface-hover: #f1f5f9;
       --text: #0f172a; --muted: #64748b; --shadow: 0 8px 25px rgba(0,0,0,0.1);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,7 +22,7 @@
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
     h1 { font-size: clamp(1.4rem, 3vw, 1.9rem); background: linear-gradient(90deg, #818cf8, #a78bfa); -webkit-background-clip: text; color: transparent; }
     .header-actions { display: flex; gap: 10px; }
-    .icon-btn { background: var(--surface); border: 1px solid var(--surface-hover); color: var(--text); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
+    .icon-btn { background: var(--surface); border: 1px solid var(--surface-hover); color: var(--text); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; pointer-events: auto; }
     .icon-btn:hover { background: var(--surface-hover); }
 
     .layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
@@ -33,7 +32,7 @@
     h3 { font-size: 0.95rem; margin-bottom: 14px; color: #f8fafc; }
 
     .mode-bar { display: flex; background: var(--surface-hover); border-radius: 10px; padding: 4px; margin-bottom: 18px; }
-    .mode-btn { flex: 1; padding: 9px; border: none; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
+    .mode-btn { flex: 1; padding: 9px; border: none; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; pointer-events: auto; }
     .mode-btn.active { background: var(--accent); color: #fff; box-shadow: 0 2px 10px var(--accent-glow); }
 
     .control { margin-bottom: 16px; }
@@ -61,20 +60,32 @@
     .meter-fill { height: 100%; background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981); width: 0%; transition: 0.6s; border-radius: 4px; }
     .meter-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; }
 
-    .history-dropdown { position: absolute; top: 50px; right: 20px; width: 280px; background: var(--surface); border: 1px solid var(--surface-hover); border-radius: var(--radius); padding: 10px; box-shadow: var(--shadow); z-index: 50; display: none; }
-    .history-dropdown.show { display: block; }
+    /* History Dropdown - Fixed z-index & pointer-events */
+    .history-dropdown { 
+      position: absolute; top: 52px; right: 20px; width: 280px; 
+      background: var(--surface); border: 1px solid var(--surface-hover); 
+      border-radius: var(--radius); padding: 10px; box-shadow: var(--shadow); 
+      z-index: 100; display: none; pointer-events: none; 
+    }
+    .history-dropdown.show { display: block; pointer-events: auto; }
     .history-item { padding: 10px; border-radius: 8px; cursor: pointer; font-size: 0.82rem; color: var(--muted); transition: 0.2s; margin-bottom: 4px; }
     .history-item:hover { background: var(--surface-hover); color: var(--text); }
     .history-item .time { font-size: 0.7rem; color: var(--accent); display: block; margin-bottom: 2px; }
     .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--surface-hover); }
-    .clear-hist { background: none; border: none; color: var(--warn); cursor: pointer; font-size: 0.75rem; }
+    .clear-hist { background: none; border: none; color: var(--warn); cursor: pointer; font-size: 0.75rem; pointer-events: auto; }
 
     .tips { margin-top: 18px; padding: 12px; background: var(--bg); border-radius: var(--radius); font-size: 0.85rem; border-left: 3px solid var(--accent); }
     .tips strong { color: #f8fafc; }
     .tips ul { margin: 6px 0 0 18px; color: var(--muted); }
     footer { text-align: center; margin-top: 28px; color: var(--muted); font-size: 0.8rem; }
+    
+    /* Loading spinner */
     .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: s 0.7s linear infinite; }
     @keyframes s { to { transform: rotate(360deg); } }
+    
+    /* Click test feedback */
+    .click-test { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 200; }
+    .click-test.show { opacity: 1; }
   </style>
 </head>
 <body>
@@ -87,6 +98,7 @@
       </div>
     </header>
 
+    <!-- History Dropdown (hidden by default) -->
     <div id="historyDropdown" class="history-dropdown">
       <div class="history-header">
         <strong>Recent Outputs</strong>
@@ -117,12 +129,12 @@
         <div class="control">
           <div class="control-header"><span>Connecting Words</span><span class="val" id="transVal">0.35</span></div>
           <input type="range" id="trans" min="0" max="1" step="0.05" value="0.35">
-          <div class="desc">Adds phrases like "That said," or "In practice," to improve flow.</div>
+          <div class="desc">Adds phrases like "That said," to improve flow.</div>
         </div>
         <div class="control">
           <div class="control-header"><span>Commas & Pauses</span><span class="val" id="punctVal">0.60</span></div>
           <input type="range" id="punct" min="0" max="1" step="0.05" value="0.60">
-          <div class="desc">Fixes missing commas & adds natural pauses. Keeps lists safe.</div>
+          <div class="desc">Fixes missing commas. Keeps lists safe.</div>
         </div>
       </aside>
 
@@ -148,18 +160,24 @@
           <strong>📌 Quick Tips</strong>
           <ul>
             <li>Bullet points & short lines stay exactly where you put them.</li>
-            <li>For best results: Humanize → add 1 real example → check with 1-2 detectors.</li>
-            <li>Higher "Commas & Pauses" = smoother reading, but don't go over 0.80.</li>
+            <li>For best results: Humanize → add 1 real example → check detectors.</li>
+            <li>Higher "Commas & Pauses" = smoother reading (max 0.80).</li>
           </ul>
         </div>
       </main>
     </div>
 
-    <footer>100% Runs in Your Browser • No Data Uploaded • Ready for GitHub Pages</footer>
+    <footer>100% Browser • No Uploads • GitHub Pages Ready</footer>
   </div>
 
+  <!-- Click feedback toast -->
+  <div id="clickTest" class="click-test">✅ Button works!</div>
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    // Wait for DOM to be fully ready BEFORE attaching events
+    document.addEventListener('DOMContentLoaded', function() {
+      
+      // === CONFIG & DATA ===
       const MODES = {
         chat: { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60 },
         pro:  { burst: 0.55, syn: 0.12, trans: 0.15, punct: 0.70 },
@@ -174,79 +192,120 @@
 
       const config = { burst: 0.80, syn: 0.20, trans: 0.35, punct: 0.60, tone: "chat" };
 
-      // UI Elements
+      // === ELEMENT CACHE (with null checks) ===
+      const $ = (id) => document.getElementById(id);
       const els = {
-        input: document.getElementById('input'), output: document.getElementById('output'),
-        stats: document.getElementById('stats'), meter: document.getElementById('readinessMeter'),
-        humanizeBtn: document.getElementById('humanizeBtn'), copyBtn: document.getElementById('copyBtn'),
-        downloadBtn: document.getElementById('downloadBtn'), clearBtn: document.getElementById('clearBtn'),
-        themeToggle: document.getElementById('themeToggle'), historyBtn: document.getElementById('historyBtn'),
-        historyDropdown: document.getElementById('historyDropdown'), historyList: document.getElementById('historyList'),
-        clearHistoryBtn: document.getElementById('clearHistoryBtn')
+        input: $('input'), output: $('output'), stats: $('stats'), meter: $('readinessMeter'),
+        humanizeBtn: $('humanizeBtn'), copyBtn: $('copyBtn'), downloadBtn: $('downloadBtn'), clearBtn: $('clearBtn'),
+        themeToggle: $('themeToggle'), historyBtn: $('historyBtn'), historyDropdown: $('historyDropdown'),
+        historyList: $('historyList'), clearHistoryBtn: $('clearHistoryBtn'), clickTest: $('clickTest')
       };
 
-      // Bind Sliders
-      const bindSlider = (id, key, valId) => {
-        const el = document.getElementById(id);
-        el.addEventListener('input', () => { config[key] = parseFloat(el.value); document.getElementById(valId).textContent = el.value; });
-      };
-      bindSlider('burst', 'burst', 'burstVal'); bindSlider('syn', 'syn', 'synVal'); bindSlider('trans', 'trans', 'transVal'); bindSlider('punct', 'punct', 'punctVal');
+      // === CLICK FEEDBACK HELPER ===
+      function showClickFeedback() {
+        if (!els.clickTest) return;
+        els.clickTest.classList.add('show');
+        setTimeout(() => els.clickTest.classList.remove('show'), 1200);
+      }
 
-      // Mode Switch
+      // === BIND SLIDERS (with safety check) ===
+      function bindSlider(id, key, valId) {
+        const el = $(id);
+        if (!el) return;
+        el.addEventListener('input', function() {
+          config[key] = parseFloat(this.value);
+          const valEl = $(valId);
+          if (valEl) valEl.textContent = this.value;
+        });
+      }
+      bindSlider('burst', 'burst', 'burstVal');
+      bindSlider('syn', 'syn', 'synVal');
+      bindSlider('trans', 'trans', 'transVal');
+      bindSlider('punct', 'punct', 'punctVal');
+
+      // === MODE BUTTONS ===
       document.querySelectorAll('.mode-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          showClickFeedback();
           document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          config.tone = btn.dataset.mode;
+          this.classList.add('active');
+          config.tone = this.dataset.mode;
           const m = MODES[config.tone];
           ['burst','syn','trans','punct'].forEach(k => {
-            document.getElementById(k).value = m[k]; config[k] = m[k];
-            document.getElementById(k + 'Val').textContent = m[k].toFixed(2);
+            const slider = $(k), val = $(k + 'Val');
+            if (slider && val) {
+              slider.value = m[k]; config[k] = m[k];
+              val.textContent = m[k].toFixed(2);
+            }
           });
           updateStats();
         });
       });
 
-      // Theme Toggle
-      els.themeToggle.addEventListener('click', () => {
-        const html = document.documentElement;
-        const isDark = html.dataset.theme === 'dark';
-        html.dataset.theme = isDark ? 'light' : 'dark';
-        els.themeToggle.textContent = isDark ? '☀️ Dark' : '🌙 Light';
-      });
+      // === THEME TOGGLE ===
+      if (els.themeToggle) {
+        els.themeToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          showClickFeedback();
+          const html = document.documentElement;
+          const isDark = html.dataset.theme === 'dark';
+          html.dataset.theme = isDark ? 'light' : 'dark';
+          this.textContent = isDark ? '☀️ Dark' : '🌙 Light';
+        });
+      }
 
-      // History Dropdown
-      els.historyBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        els.historyDropdown.classList.toggle('show');
-        renderHistory();
-      });
-      document.addEventListener('click', (e) => {
-        if (!els.historyDropdown.contains(e.target) && e.target !== els.historyBtn) {
-          els.historyDropdown.classList.remove('show');
-        }
-      });
+      // === HISTORY DROPDOWN ===
+      if (els.historyBtn && els.historyDropdown) {
+        els.historyBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          showClickFeedback();
+          els.historyDropdown.classList.toggle('show');
+          renderHistory();
+        });
 
-      els.clearHistoryBtn.addEventListener('click', () => {
-        localStorage.removeItem('humanizer_hist');
-        renderHistory();
-      });
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+          if (els.historyDropdown.classList.contains('show') && 
+              !els.historyDropdown.contains(e.target) && 
+              e.target !== els.historyBtn) {
+            els.historyDropdown.classList.remove('show');
+          }
+        });
+      }
+
+      if (els.clearHistoryBtn) {
+        els.clearHistoryBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          localStorage.removeItem('humanizer_hist');
+          renderHistory();
+          showClickFeedback();
+        });
+      }
 
       function renderHistory() {
+        if (!els.historyList) return;
         const h = JSON.parse(localStorage.getItem('humanizer_hist') || '[]');
-        if (!h.length) { els.historyList.innerHTML = '<div style="padding:8px;color:var(--muted);font-size:0.8rem;">No history yet.</div>'; return; }
+        if (!h.length) { 
+          els.historyList.innerHTML = '<div style="padding:8px;color:var(--muted);font-size:0.8rem;">No history yet.</div>'; 
+          return; 
+        }
         els.historyList.innerHTML = h.map((item, i) => `
-          <div class="history-item" data-idx="${i}">
+          <div class="history-item" data-idx="${i}" tabindex="0">
             <span class="time">${item.time}</span>
             ${item.preview}
           </div>
         `).join('');
+        
         els.historyList.querySelectorAll('.history-item').forEach(el => {
-          el.addEventListener('click', () => {
-            const idx = parseInt(el.dataset.idx);
-            els.output.value = h[idx].full;
-            els.historyDropdown.classList.remove('show');
+          el.addEventListener('click', function() {
+            const idx = parseInt(this.dataset.idx);
+            if (els.output) els.output.value = h[idx].full;
+            if (els.historyDropdown) els.historyDropdown.classList.remove('show');
             updateStats();
+            showClickFeedback();
           });
         });
       }
@@ -263,7 +322,7 @@
         localStorage.setItem('humanizer_hist', JSON.stringify(h));
       }
 
-      // Line Protection Logic
+      // === LINE PROTECTION LOGIC ===
       const isListOrShort = (line) => {
         const t = line.trim();
         return t.length < 25 || /^[\s]*[\-\*\•\d\.\)]/.test(t) || /^[\s]*[\-\*\•]\s/.test(t);
@@ -326,8 +385,8 @@
         return out.join(' ').replace(/\s+/g, ' ').trim();
       };
 
-      // Main Humanize
-      window.humanizeText = (text) => {
+      // === MAIN HUMANIZE FUNCTION ===
+      window.humanizeText = function(text) {
         return text.split('\n').map(line => {
           if (!line.trim()) return line;
           return isListOrShort(line) ? applyLightFixes(line) : processParagraph(line);
@@ -335,7 +394,8 @@
       };
 
       function updateStats() {
-        const out = els.output.value;
+        if (!els.stats || !els.meter) return;
+        const out = els.output ? els.output.value : '';
         if (!out) {
           els.stats.innerHTML = '<span class="badge">Words: 0</span><span class="badge">Lines: 0</span><span class="badge">Mode: Casual</span>';
           els.meter.style.width = '0%';
@@ -348,37 +408,65 @@
         els.meter.style.width = readiness + '%';
       }
 
-      // Button Actions
-      els.humanizeBtn.addEventListener('click', () => {
-        const input = els.input.value.trim();
-        if (!input) return;
-        els.humanizeBtn.disabled = true; els.humanizeBtn.innerHTML = '<span class="spin"></span> Working...';
-        setTimeout(() => {
-          els.output.value = humanizeText(input);
-          saveHistory(els.output.value);
-          updateStats();
-          els.humanizeBtn.disabled = false; els.humanizeBtn.innerHTML = '<span>✨ Humanize</span>';
-        }, 250);
-      });
-
-      els.copyBtn.addEventListener('click', () => {
-        if (!els.output.value) return;
-        navigator.clipboard.writeText(els.output.value).then(() => {
-          const b = els.copyBtn; b.textContent = '✅ Copied'; setTimeout(() => b.textContent = '📋 Copy', 1200);
+      // === BUTTON ACTIONS (with explicit preventDefault + feedback) ===
+      if (els.humanizeBtn) {
+        els.humanizeBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          showClickFeedback();
+          const input = els.input ? els.input.value.trim() : '';
+          if (!input) return;
+          this.disabled = true; this.innerHTML = '<span class="spin"></span> Working...';
+          setTimeout(() => {
+            if (els.output) els.output.value = humanizeText(input);
+            if (els.output) saveHistory(els.output.value);
+            updateStats();
+            this.disabled = false; this.innerHTML = '<span>✨ Humanize</span>';
+          }, 250);
         });
-      });
+      }
 
-      els.downloadBtn.addEventListener('click', () => {
-        const t = els.output.value; if (!t) return;
-        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([t], { type: 'text/plain' })); a.download = 'humanized.txt'; a.click();
-      });
+      if (els.copyBtn) {
+        els.copyBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          showClickFeedback();
+          const text = els.output ? els.output.value : '';
+          if (!text) return;
+          navigator.clipboard.writeText(text).then(() => {
+            this.textContent = '✅ Copied'; 
+            setTimeout(() => this.textContent = '📋 Copy', 1200);
+          });
+        });
+      }
 
-      els.clearBtn.addEventListener('click', () => {
-        els.input.value = ''; els.output.value = '';
-        updateStats();
-      });
+      if (els.downloadBtn) {
+        els.downloadBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          showClickFeedback();
+          const t = els.output ? els.output.value : '';
+          if (!t) return;
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(new Blob([t], { type: 'text/plain' }));
+          a.download = 'humanized.txt';
+          a.click();
+        });
+      }
 
+      if (els.clearBtn) {
+        els.clearBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          showClickFeedback();
+          if (els.input) els.input.value = '';
+          if (els.output) els.output.value = '';
+          updateStats();
+        });
+      }
+
+      // Initialize
+      renderHistory();
       updateStats();
+      
+      // Debug: log if buttons are bound
+      console.log('✅ All event listeners attached. Buttons should be clickable.');
     });
   </script>
 </body>
