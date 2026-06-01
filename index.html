@@ -1,320 +1,154 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Text Humanizer Pro</title>
+  <title>AI Text Humanizer</title>
   <style>
-    :root {
-      --bg: #0b0f19; --surface: #151a28; --surface-hover: #1e2538;
-      --text: #e2e8f0; --muted: #94a3b8; --accent: #6366f1;
-      --accent-glow: rgba(99, 102, 241, 0.35); --success: #10b981;
-      --warn: #f59e0b; --danger: #ef4444;
-      --radius: 14px; --shadow: 0 10px 35px rgba(0,0,0,0.45);
-      --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    }
-    [data-theme="light"] {
-      --bg: #f8fafc; --surface: #ffffff; --surface-hover: #f1f5f9;
-      --text: #0f172a; --muted: #64748b; --shadow: 0 10px 35px rgba(0,0,0,0.12);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.55; padding: 20px; transition: background 0.3s, color 0.3s; }
-    .container { max-width: 1150px; margin: 0 auto; }
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-    h1 { font-size: clamp(1.5rem, 3.5vw, 2rem); background: linear-gradient(90deg, #818cf8, #a78bfa, #c084fc); -webkit-background-clip: text; color: transparent; }
-    .theme-btn { background: var(--surface); border: 1px solid var(--muted); color: var(--text); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; }
-
-    .grid { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
-    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
-
-    .card { background: var(--surface); border: 1px solid rgba(148,163,184,0.15); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
-    h3 { font-size: 0.95rem; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-
-    .mode-bar { display: flex; background: var(--surface-hover); border-radius: 10px; padding: 4px; margin-bottom: 18px; }
-    .mode-btn { flex: 1; padding: 9px; border: none; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; transition: 0.2s; font-weight: 500; }
-    .mode-btn.active { background: var(--accent); color: #fff; box-shadow: 0 2px 10px var(--accent-glow); }
-
-    .slider-group { margin-bottom: 16px; }
-    .slider-header { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
-    .val { background: var(--surface-hover); padding: 2px 8px; border-radius: 6px; font-family: monospace; }
-    input[type="range"] { -webkit-appearance: none; width: 100%; height: 5px; background: var(--surface-hover); border-radius: 4px; outline: none; cursor: pointer; }
-    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; transition: 0.2s; }
-    input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.2); box-shadow: 0 0 8px var(--accent-glow); }
-
-    textarea { width: 100%; height: 150px; background: var(--bg); border: 1px solid var(--surface-hover); border-radius: 12px; color: var(--text); padding: 14px; font-size: 0.95rem; resize: vertical; font-family: var(--font); transition: border 0.2s; }
-    textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
-    textarea[readonly] { background: var(--surface-hover); opacity: 0.9; }
-
-    .actions { display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
-    .btn { flex: 1; padding: 11px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px var(--accent-glow); }
-    .btn-secondary { background: var(--surface-hover); color: var(--text); }
-    .btn-secondary:hover { background: var(--muted); color: var(--bg); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-
-    .stats { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.82rem; color: var(--muted); margin: 10px 0; }
-    .stat-badge { background: var(--surface-hover); padding: 4px 10px; border-radius: 8px; }
-
-    .meter { height: 6px; background: var(--surface-hover); border-radius: 4px; overflow: hidden; margin: 12px 0; }
-    .meter-fill { height: 100%; background: linear-gradient(90deg, var(--danger), var(--warn), var(--success)); width: 0%; transition: width 0.6s; border-radius: 4px; }
-
-    .history-list { max-height: 120px; overflow-y: auto; font-size: 0.82rem; color: var(--muted); }
-    .history-item { padding: 8px 10px; border-bottom: 1px solid var(--surface-hover); cursor: pointer; transition: 0.2s; }
-    .history-item:hover { background: var(--surface-hover); color: var(--text); }
-    .history-item:last-child { border-bottom: none; }
-
-    .tips { margin-top: 20px; padding: 14px; background: var(--bg); border-radius: var(--radius); font-size: 0.88rem; border-left: 3px solid var(--accent); }
-    .tips strong { color: var(--text); }
-    .tips ul { margin: 8px 0 0 18px; color: var(--muted); }
-    .tips li { margin-bottom: 5px; }
-
-    footer { text-align: center; margin-top: 32px; color: var(--muted); font-size: 0.8rem; }
-    .loading { display: inline-block; width: 14px; height: 14px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    :root { --bg: #0f1115; --card: #1a1d23; --text: #e2e8f0; --accent: #3b82f6; --hover: #2563eb; --border: #334155; }
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 30px; }
+    h1 { margin: 0; font-size: 2rem; background: linear-gradient(90deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; color: transparent; }
+    .grid { display: grid; gap: 20px; margin-bottom: 20px; }
+    textarea { width: 100%; height: 180px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-size: 1rem; resize: vertical; box-sizing: border-box; }
+    textarea:focus { outline: 2px solid var(--accent); }
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    button { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+    button:hover { background: var(--hover); }
+    button.secondary { background: #475569; }
+    .stats { font-size: 0.9rem; color: #94a3b8; margin-top: 8px; }
+    .tips { background: var(--card); padding: 16px; border-radius: 10px; margin-top: 24px; border: 1px solid var(--border); }
+    .tips h3 { margin-top: 0; color: #f8fafc; }
+    ul { padding-left: 20px; margin: 0; }
+    li { margin-bottom: 6px; }
+    footer { text-align: center; margin-top: 40px; color: #64748b; font-size: 0.85rem; }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>AI Text Humanizer</h1>
-      <button class="theme-btn" id="themeToggle">🌙 Light</button>
+      <p>Paste AI-generated text → click humanize → beat detector patterns.</p>
     </header>
 
     <div class="grid">
-      <aside class="card">
-        <h3>⚙️ Engine Config</h3>
-        <div class="mode-bar" id="modeBar">
-          <button class="mode-btn active" data-mode="chat">💬 Chat</button>
-          <button class="mode-btn" data-mode="pro">💼 Pro</button>
-          <button class="mode-btn" data-mode="academic">🎓 Academic</button>
-        </div>
-
-        <div class="slider-group">
-          <div class="slider-header"><span>Burstiness</span><span class="val" id="burstVal">0.80</span></div>
-          <input type="range" id="burst" min="0" max="1" step="0.05" value="0.80">
-        </div>
-        <div class="slider-group">
-          <div class="slider-header"><span>Synonym Rate</span><span class="val" id="synVal">0.20</span></div>
-          <input type="range" id="syn" min="0" max="0.4" step="0.05" value="0.20">
-        </div>
-        <div class="slider-group">
-          <div class="slider-header"><span>Transition Freq</span><span class="val" id="transVal">0.35</span></div>
-          <input type="range" id="trans" min="0" max="1" step="0.05" value="0.35">
-        </div>
-        <div class="slider-group">
-          <div class="slider-header"><span>Imperfection</span><span class="val" id="impVal">0.15</span></div>
-          <input type="range" id="imp" min="0" max="0.3" step="0.05" value="0.15">
-        </div>
-
-        <h3>📜 Recent Outputs</h3>
-        <div class="history-list" id="history">No history yet.</div>
-      </aside>
-
-      <main class="card">
-        <textarea id="input" placeholder="Paste AI draft here..."></textarea>
-        <div class="actions">
-          <button class="btn btn-primary" id="humanizeBtn"><span>✨ Humanize</span></button>
-          <button class="btn btn-secondary" id="copyBtn">📋 Copy</button>
-          <button class="btn btn-secondary" id="downloadBtn">⬇️ .txt</button>
-          <button class="btn btn-secondary" id="clearBtn">🗑️ Clear</button>
-        </div>
-        <textarea id="output" readonly placeholder="Humanized text appears here..."></textarea>
-        
-        <div class="stats" id="stats">
-          <span class="stat-badge">Words: 0</span>
-          <span class="stat-badge">Sentences: 0</span>
-          <span class="stat-badge">Mode: Chat</span>
-        </div>
-        <div class="meter"><div class="meter-fill" id="readinessMeter"></div></div>
-        <div style="font-size:0.78rem; color:var(--muted); margin-bottom:10px;">Detector Readiness: <span id="readinessText">0%</span></div>
-
-        <div class="tips">
-          <strong>📉 Optimization Tips</strong>
-          <ul>
-            <li>Chat mode favors natural rhythm & contractions; keep burstiness ≥0.75</li>
-            <li>Pro mode strips filler & enforces active voice; lower transitions ≤0.20</li>
-            <li>Academic mode prioritizes precision & controlled variation; avoid over-swapping</li>
-            <li>Run through 2 detectors, average scores, then add 1 real metric manually</li>
-          </ul>
-        </div>
-      </main>
+      <textarea id="input" placeholder="Paste your AI draft here..."></textarea>
+      <div class="controls">
+        <button id="humanizeBtn">⚡ Humanize</button>
+        <button class="secondary" id="copyBtn">📋 Copy</button>
+        <button class="secondary" id="clearBtn">🗑️ Clear</button>
+      </div>
+      <textarea id="output" placeholder="Humanized output will appear here..." readonly></textarea>
+      <div class="stats" id="stats"></div>
     </div>
 
-    <footer>100% Client-Side • Research-Tuned Presets • Zero Data Leaves Your Browser</footer>
+    <div class="tips">
+      <h3>📉 How to Keep Scores Under 20%</h3>
+      <ul>
+        <li>Run through 2 detectors (GPTZero, Originality, QuillBot) and average results</li>
+        <li>Add 1 personal example or field-specific term manually</li>
+        <li>Avoid over-editing; too many idioms or fragmented sentences trigger "spam" flags</li>
+        <li>Keep paragraphs 3–5 sentences & vary opening words</li>
+        <li>Detection algorithms change weekly; treat this as a baseline, not a guarantee</li>
+      </ul>
+    </div>
+
+    <footer>Built for GitHub Pages • 100% Browser-Side • No Data Sent to Servers</footer>
   </div>
 
   <script>
-    const MODE_PRESETS = {
-      chat:       { burst: 0.80, syn: 0.20, trans: 0.35, imp: 0.15 },
-      pro:        { burst: 0.55, syn: 0.12, trans: 0.15, imp: 0.08 },
-      academic:   { burst: 0.45, syn: 0.25, trans: 0.10, imp: 0.10 }
+    const CONFIG = {
+      burstinessStrength: 0.7,
+      synonymRate: 0.15,
+      transitionFreq: 0.2,
+      tone: "conversational"
     };
 
-    const POOLS = {
-      chat: { "utilize":"use", "commence":"start", "subsequently":"later", "therefore":"so", "nevertheless":"still", "demonstrate":"show", "endeavor":"try", "facilitate":"help", "implement":"set up", "furthermore":"also", "in conclusion":"anyway" },
-      pro: { "utilize":"use", "commence":"begin", "subsequently":"afterwards", "therefore":"thus", "nevertheless":"however", "demonstrate":"illustrate", "endeavor":"attempt", "facilitate":"enable", "implement":"deploy", "furthermore":"moreover", "in conclusion":"to wrap up" },
-      academic: { "utilize":"employ", "commence":"initiate", "subsequently":"following", "therefore":"hence", "nevertheless":"nonetheless", "demonstrate":"evidence", "endeavor":"strive", "facilitate":"promote", "implement":"integrate", "furthermore":"in addition", "in conclusion":"in summary" }
+    const AI_HALLMARKS = [
+      /\b(in conclusion|to summarize|it is important to note|furthermore|additionally|it's worth mentioning|ultimately)\b/gi,
+      /\b(ai|machine learning|technology)\s+\w+\s+has\s+(revolutionized|transformed|changed)\b/gi
+    ];
+    const TRANSITIONS = ["That said,", "Honestly,", "Funny enough,", "On the flip side,", "Here's the thing:", "Turns out,", "Long story short,"];
+    const SYNONYMS = {
+      utilize: "use", commence: "start", subsequently: "later",
+      therefore: "so", nevertheless: "still", demonstrate: "show",
+      endeavor: "try", facilitate: "help", implement: "set up"
     };
 
-    const config = { burst: 0.80, syn: 0.20, trans: 0.35, imp: 0.15, tone: "chat" };
-
-    // UI Bindings
-    const bind = (id, key, valId) => {
-      const el = document.getElementById(id);
-      el.addEventListener("input", () => { config[key] = parseFloat(el.value); document.getElementById(valId).textContent = el.value; });
-    };
-    bind("burst", "burst", "burstVal"); bind("syn", "syn", "synVal"); bind("trans", "trans", "transVal"); bind("imp", "imp", "impVal");
-
-    document.querySelectorAll(".mode-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        const mode = btn.dataset.mode;
-        config.tone = mode;
-        const p = MODE_PRESETS[mode];
-        document.getElementById("burst").value = p.burst; config.burst = p.burst; document.getElementById("burstVal").textContent = p.burst;
-        document.getElementById("syn").value = p.syn; config.syn = p.syn; document.getElementById("synVal").textContent = p.syn;
-        document.getElementById("trans").value = p.trans; config.trans = p.trans; document.getElementById("transVal").textContent = p.trans;
-        document.getElementById("imp").value = p.imp; config.imp = p.imp; document.getElementById("impVal").textContent = p.imp;
-        updateStats();
-      });
-    });
-
-    document.getElementById("themeToggle").addEventListener("click", () => {
-      const html = document.documentElement;
-      const isDark = html.getAttribute("data-theme") === "dark";
-      html.setAttribute("data-theme", isDark ? "light" : "dark");
-      document.getElementById("themeToggle").textContent = isDark ? "☀️ Dark" : "🌙 Light";
-    });
-
-    // Humanization Engine
     function humanizeText(text) {
-      let processed = text.replace(/\b(in conclusion|to summarize|it is important to note|it's worth mentioning|ultimately|furthermore|additionally)\b/gi, () => Math.random() > 0.6 ? "" : "Anyway, ");
-      
-      const sentences = processed.match(/[^.!?]+[.!?]+/g) || [processed];
+      let processed = text;
+      AI_HALLMARKS.forEach(regex => {
+        processed = processed.replace(regex, () => Math.random() > 0.5 ? "" : "Anyway, ");
+      });
+
+      const sentences = processed.match(/[^.!?]+[.!?]*/g) || [processed];
       const result = [];
-      const synonyms = POOLS[config.tone];
 
       for (let i = 0; i < sentences.length; i++) {
         let sent = sentences[i].trim();
         if (!sent) continue;
 
-        // Burstiness split
-        if (Math.random() < config.burst && sent.length > 65) {
-          const split = Math.floor(sent.length * 0.65);
-          const idx = sent.lastIndexOf(" ", split);
-          if (idx > 0) {
-            const a = sent.substring(0, idx).trim();
-            const b = sent.substring(idx + 1).trim();
-            if (b) sent = `${a}. ${b.charAt(0).toUpperCase()}${b.slice(1)}`;
+        if (Math.random() < CONFIG.burstinessStrength && sent.length > 50) {
+          const splitIdx = Math.floor(sent.length * 0.6);
+          const spaceIdx = sent.lastIndexOf(' ', splitIdx);
+          if (spaceIdx > 0) {
+            sent = sent.substring(0, spaceIdx) + ". " + sent.substring(spaceIdx + 1).charAt(0).toUpperCase() + sent.substring(spaceIdx + 2);
           }
         }
 
-        // Synonym swap
         const words = sent.split(/(\s+|[.,!?;:])/);
-        sent = words.map(w => {
-          const clean = w.toLowerCase().replace(/[.,!?;:]$/, "");
-          if (synonyms[clean] && Math.random() < config.syn) {
-            return synonyms[clean] + w.slice(w.toLowerCase().indexOf(clean) + clean.length);
+        const newWords = words.map(word => {
+          const lower = word.toLowerCase();
+          if (SYNONYMS[lower] && Math.random() < CONFIG.synonymRate) {
+            return SYNONYMS[lower];
           }
-          return w;
-        }).join("");
+          return word;
+        });
+        sent = newWords.join('');
 
-        // Transitions
-        if (i > 0 && Math.random() < config.trans) {
-          const pool = config.tone === "chat" ? ["That said,", "Honestly,", "Funny enough,", "Here's the thing:", "Turns out,"] :
-                       config.tone === "pro" ? ["That noted,", "Practically,", "Moving forward,", "In practice,", "To clarify,"] :
-                       ["Notably,", "Conversely,", "In this context,", "As observed,", "Specifically,"];
-          sent = pool[Math.floor(Math.random() * pool.length)] + " " + sent;
+        if (i > 0 && Math.random() < CONFIG.transitionFreq) {
+          sent = TRANSITIONS[Math.floor(Math.random() * TRANSITIONS.length)] + " " + sent;
         }
 
-        // Imperfections & Contractions
-        if (config.tone === "chat") {
-          sent = sent.replace(/\b(I am|you are|they are|we are|do not|cannot|it is)\b/gi, m => ({
-            "I am":"I'm","you are":"you're","they are":"they're","we are":"we're","do not":"don't","cannot":"can't","it is":"it's"
-          }[m] || m));
-        }
-        if (Math.random() < config.imp) {
-          sent = sent.replace(/^(However|Therefore|Thus|Consequently)\b/gi, m => m.replace("H", "And").replace("T", "So").replace("C", "But"));
+        if (CONFIG.tone === "conversational") {
+          sent = sent.replace(/\b(I am)\b/gi, "I'm")
+                     .replace(/\b(do not)\b/gi, "don't")
+                     .replace(/\b(cannot)\b/gi, "can't")
+                     .replace(/\b(it is)\b/gi, "it's")
+                     .replace(/\b(they are)\b/gi, "they're")
+                     .replace(/\b(we are)\b/gi, "we're");
         }
 
         result.push(sent);
       }
-      return result.join(" ").replace(/\s+/g, " ").trim();
+
+      return result.join(' ').replace(/\s+/g, ' ').trim();
     }
 
-    // Actions & Stats
-    function updateStats() {
-      const out = document.getElementById("output").value;
-      if (!out) return;
-      const wc = out.split(/\s+/).filter(Boolean).length;
-      const sc = (out.match(/[.!?]+/g) || []).length || 1;
-      const readiness = Math.min(100, Math.round((config.burst * 0.3 + (1 - config.syn) * 0.2 + (1 - config.trans) * 0.15 + config.imp * 0.15 + (config.tone === "chat" ? 0.2 : config.tone === "pro" ? 0.1 : 0.05)) * 100));
-      
-      document.getElementById("stats").innerHTML = `<span class="stat-badge">Words: ${wc}</span><span class="stat-badge">Sentences: ${sc}</span><span class="stat-badge">Mode: ${config.tone.toUpperCase()}</span>`;
-      document.getElementById("readinessMeter").style.width = readiness + "%";
-      document.getElementById("readinessText").textContent = readiness + "%";
-    }
-
-    function saveHistory(text) {
-      let h = JSON.parse(localStorage.getItem("humanizer_hist") || "[]");
-      h.unshift({ text: text.substring(0, 60) + "...", full: text, time: new Date().toLocaleTimeString() });
-      if (h.length > 5) h.pop();
-      localStorage.setItem("humanizer_hist", JSON.stringify(h));
-      renderHistory();
-    }
-
-    function renderHistory() {
-      const h = JSON.parse(localStorage.getItem("humanizer_hist") || "[]");
-      const el = document.getElementById("history");
-      el.innerHTML = h.length ? h.map(i => `<div class="history-item" data-idx="${h.indexOf(i)}">${i.time} • ${i.text}</div>`).join("") : "No history yet.";
-      el.querySelectorAll(".history-item").forEach(item => {
-        item.addEventListener("click", () => {
-          const idx = item.dataset.idx;
-          document.getElementById("output").value = h[idx].full;
-          updateStats();
-        });
-      });
-    }
-
-    document.getElementById("humanizeBtn").addEventListener("click", () => {
-      const input = document.getElementById("input").value.trim();
+    document.getElementById('humanizeBtn').addEventListener('click', () => {
+      const input = document.getElementById('input').value.trim();
       if (!input) return;
-      const btn = document.getElementById("humanizeBtn");
-      btn.disabled = true; btn.innerHTML = '<span class="loading"></span> Processing...';
-      
-      setTimeout(() => {
-        const out = humanizeText(input);
-        document.getElementById("output").value = out;
-        saveHistory(out);
-        updateStats();
-        btn.disabled = false; btn.innerHTML = '<span>✨ Humanize</span>';
-      }, 300);
+      const output = humanizeText(input);
+      document.getElementById('output').value = output;
+      const wordCount = output.split(/\s+/).filter(w => w).length;
+      const sentCount = output.match(/[.!?]+/g)?.length || 1;
+      document.getElementById('stats').textContent = `✅ Humanized • ~${wordCount} words • ~${sentCount} sentences • Burstiness & perplexity boosted`;
     });
 
-    document.getElementById("copyBtn").addEventListener("click", () => {
-      navigator.clipboard.writeText(document.getElementById("output").value).then(() => {
-        const btn = document.getElementById("copyBtn"); btn.textContent = "✅ Copied"; setTimeout(() => btn.textContent = "📋 Copy", 1400);
-      });
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const out = document.getElementById('output');
+      out.select();
+      document.execCommand('copy');
+      document.getElementById('copyBtn').textContent = "✅ Copied";
+      setTimeout(() => document.getElementById('copyBtn').textContent = "📋 Copy", 1500);
     });
 
-    document.getElementById("downloadBtn").addEventListener("click", () => {
-      const text = document.getElementById("output").value;
-      if (!text) return;
-      const blob = new Blob([text], { type: "text/plain" });
-      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "humanized.txt"; a.click();
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      document.getElementById('input').value = '';
+      document.getElementById('output').value = '';
+      document.getElementById('stats').textContent = '';
     });
-
-    document.getElementById("clearBtn").addEventListener("click", () => {
-      document.getElementById("input").value = "";
-      document.getElementById("output").value = "";
-      document.getElementById("readinessMeter").style.width = "0%";
-      document.getElementById("readinessText").textContent = "0%";
-      document.getElementById("stats").innerHTML = `<span class="stat-badge">Words: 0</span><span class="stat-badge">Sentences: 0</span><span class="stat-badge">Mode: ${config.tone.toUpperCase()}</span>`;
-    });
-
-    renderHistory(); updateStats();
   </script>
 </body>
 </html>
