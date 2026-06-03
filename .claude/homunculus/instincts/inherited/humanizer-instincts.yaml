@@ -1,0 +1,392 @@
+# Instincts generated from https://github.com/shahjee-se/humanizer
+# Generated: 2026-06-03T18:41:56.602Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: humanizer-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/shahjee-se/humanizer
+---
+
+# Humanizer Commit Length
+
+## Action
+
+Keep commit messages concise (~43 characters)
+
+## Evidence
+
+- Average commit message length: 43 chars
+- Based on 25 commits
+
+---
+id: humanizer-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/shahjee-se/humanizer
+---
+
+# Humanizer Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: humanizer-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/shahjee-se/humanizer
+---
+
+# Humanizer Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: humanizer-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/shahjee-se/humanizer
+---
+
+# Humanizer Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: humanizer-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/shahjee-se/humanizer
+---
+
+# Humanizer Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: humanizer-workflow-html-ui-refactor
+trigger: "when doing html ui refactor"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/shahjee-se/humanizer
+---
+
+# Humanizer Workflow Html Ui Refactor
+
+## Action
+
+Follow the html-ui-refactor workflow:
+1. Edit index.html to update structure, layout, or UI components
+2. Adjust or add HTML elements and attributes for new features or improved usability
+3. Modify inline styles or classes to enhance appearance and functionality
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~8x per month
+- Files: index.html
+
+---
+id: humanizer-workflow-merge-pull-request-update-branch
+trigger: "when doing merge pull request update branch"
+confidence: 0.8
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/shahjee-se/humanizer
+---
+
+# Humanizer Workflow Merge Pull Request Update Branch
+
+## Action
+
+Follow the merge-pull-request-update-branch workflow:
+1. Update .gitignore as needed
+2. Edit app.js, index.html, and/or styles.css to incorporate new changes or fixes
+3. Commit changes with a message referencing the pull request or update
+4. Merge branch into main
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~6x per month
+- Files: .gitignore, app.js, index.html
+
+---
+id: humanizer-workflow-html-bugfix-or-feature-update
+trigger: "when doing html bugfix or feature update"
+confidence: 0.7
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/shahjee-se/humanizer
+---
+
+# Humanizer Workflow Html Bugfix Or Feature Update
+
+## Action
+
+Follow the html-bugfix-or-feature-update workflow:
+1. Edit index.html to fix the bug or add the feature
+2. Adjust relevant HTML elements, attributes, or inline styles
+3. Commit with a descriptive message about the fix or feature
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~4x per month
+- Files: index.html
+
+---
+id: humanizer-instinct-file-naming-camelCase
+trigger: "When creating or renaming a file in the codebase"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: shahjee-se/humanizer
+---
+
+# Humanizer Instinct File Naming CamelCase
+
+## Action
+
+Name the file using camelCase convention
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.files: camelCase
+
+---
+id: humanizer-instinct-function-naming-camelCase
+trigger: "When defining a new function"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: shahjee-se/humanizer
+---
+
+# Humanizer Instinct Function Naming CamelCase
+
+## Action
+
+Name the function using camelCase convention
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.functions: camelCase
+
+---
+id: humanizer-instinct-class-naming-PascalCase
+trigger: "When defining a new class"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: shahjee-se/humanizer
+---
+
+# Humanizer Instinct Class Naming PascalCase
+
+## Action
+
+Name the class using PascalCase convention
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.classes: PascalCase
+
+---
+id: humanizer-instinct-constant-naming-SCREAMING_SNAKE_CASE
+trigger: "When defining a constant"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: shahjee-se/humanizer
+---
+
+# Humanizer Instinct Constant Naming SCREAMING_SNAKE_CASE
+
+## Action
+
+Name the constant using SCREAMING_SNAKE_CASE convention
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.constants: SCREAMING_SNAKE_CASE
+
+---
+id: humanizer-instinct-import-relative
+trigger: "When importing modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: shahjee-se/humanizer
+---
+
+# Humanizer Instinct Import Relative
+
+## Action
+
+Use relative import paths
+
+## Evidence
+
+- Pattern in codeStyle.importStyle: relative
+
+---
+id: humanizer-instinct-export-named
+trigger: "When exporting functions or variables"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: shahjee-se/humanizer
+---
+
+# Humanizer Instinct Export Named
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in codeStyle.exportStyle: named
+
+---
+id: humanizer-instinct-testing-pattern-unknown
+trigger: "When writing tests for the codebase"
+confidence: 0.3
+domain: testing
+source: repo-analysis
+source_repo: shahjee-se/humanizer
+---
+
+# Humanizer Instinct Testing Pattern Unknown
+
+## Action
+
+Determine test file location and structure, as test patterns are not clearly established
+
+## Evidence
+
+- Architecture: testLocation is 'separate', but no common folders or examples provided
+
+---
+id: humanizer-instinct-commit-freeform
+trigger: "When writing a commit message"
+confidence: 0.8
+domain: git
+source: repo-analysis
+source_repo: shahjee-se/humanizer
+---
+
+# Humanizer Instinct Commit Freeform
+
+## Action
+
+Use a freeform message, optionally referencing pull requests or issues, with no strict prefix
+
+## Evidence
+
+- Seen in commits: 'update branch', 'Fix unclickable buttons by adjusting z-index...'
+- Pattern in commits: type is freeform, no prefixes
+
+---
+id: humanizer-instinct-html-ui-refactor
+trigger: "When someone wants to enhance the layout, styles, or features of the web interface"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: shahjee-se/humanizer
+---
+
+# Humanizer Instinct Html Ui Refactor
+
+## Action
+
+Edit index.html to update structure, layout, or UI components; adjust/add HTML elements and attributes; modify inline styles or classes
+
+## Evidence
+
+- Workflow: html-ui-refactor
+- Example commits: 'Edit index.html to update structure, layout, or UI components'
+
+---
+id: humanizer-instinct-merge-pull-request-update-branch
+trigger: "When someone wants to merge changes from a feature or fix branch back into the main branch"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: shahjee-se/humanizer
+---
+
+# Humanizer Instinct Merge Pull Request Update Branch
+
+## Action
+
+Update .gitignore as needed; edit app.js, index.html, and/or styles.css; commit referencing the pull request; merge branch into main
+
+## Evidence
+
+- Workflow: merge-pull-request-update-branch
+- Example commits: 'Merge pull request #X from ...'
+
+---
+id: humanizer-instinct-html-bugfix-or-feature-update
+trigger: "When someone wants to fix a bug or add a small feature related to the UI or user interaction"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: shahjee-se/humanizer
+---
+
+# Humanizer Instinct Html Bugfix Or Feature Update
+
+## Action
+
+Edit index.html to fix the bug or add the feature; adjust relevant HTML elements, attributes, or inline styles; commit with a descriptive message
+
+## Evidence
+
+- Workflow: html-bugfix-or-feature-update
+- Example commit: 'Fix unclickable buttons by adjusting z-index and adding touch-action/user-select CSS properties'
+
